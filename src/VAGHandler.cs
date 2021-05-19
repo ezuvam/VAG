@@ -13,12 +13,12 @@ namespace ezuvam.VAG
         public float TextSpeedFactor { get { return GetDataFloat("TextSpeedFactor", 0.2f); } set { SetDataFloat("TextSpeedFactor", value); } }
         public string InitialGameStatsFile { get { return GetDataStr("InitialGameStatsFile"); } set { SetDataStr("InitialGameStatsFile", value); } }
         public string InitialDialog { get { return GetDataStr("InitialDialog"); } set { SetDataStr("InitialDialog", value); } }
-        
+      
 
         private readonly int _currentStoreVersion = 1;
-        public VAGCollection Quests;
+        public VAGQuestsCollection Quests;
         public VAMACharacterCollection Characters;
-        public VAGDialog Dialogs;
+        public VAGDialogsCollection Dialogs;
         public VAGQuestLocationsCollection Locations;
         public VAGTransitionsCollection Transitions;
         public readonly VAGGameStates GameStates = new VAGGameStates(null);
@@ -38,9 +38,9 @@ namespace ezuvam.VAG
         }
         public VAGStore(JSONClass initialData) : base(initialData)
         {
-            Quests = new VAGCollection(GetDataObject("Quests"), this);
+            Quests = new VAGQuestsCollection(GetDataObject("Quests"), this);
             Characters = new VAMACharacterCollection(GetDataObject("Characters"), this);
-            Dialogs = new VAGDialog(GetDataObject("Dialogs"), this);
+            Dialogs = new VAGDialogsCollection(GetDataObject("Dialogs"), this);
             Locations = new VAGQuestLocationsCollection(GetDataObject("Locations"), this);
             Transitions = new VAGTransitionsCollection(GetDataObject("Transitions"), this);
         }
@@ -530,19 +530,19 @@ namespace ezuvam.VAG
             Location = Store.Locations.Add("city", "city");
             Location.Places.Add("restaurant", "a nice restaurant");
 
-            Store.Quests.Add("test quest 1").ChildQuests.Add("Sub quest 1.1").ChildQuests.Add("Subquest 1.1.1");
-            Store.Quests.Add("test quest 2").ChildQuests.Add("Sub quest 2.1").ChildQuests.Add("Subquest 2.1.1");
+            Store.Quests.Add("test quest 1").Quests.Add("Sub quest 1.1").Quests.Add("Subquest 1.1.1");
+            Store.Quests.Add("test quest 2").Quests.Add("Sub quest 2.1").Quests.Add("Subquest 2.1.1");
 
             VAGDialog Dialog = Store.Dialogs.Add("Intro");
             Dialog.DialogText = "Hey there!";
 
-            Dialog = Dialog.Add();
+            Dialog = Dialog.Dialogs.Add();
             Dialog.DialogText = "I'm over here";
 
-            Dialog = Dialog.Add();
+            Dialog = Dialog.Dialogs.Add();
             Dialog.DialogText = "Yes you! Don't be shy, come to me :)";
 
-            Dialog = Dialog.Add();
+            Dialog = Dialog.Dialogs.Add();
             Dialog.DialogText = "Nice to meet you sweety. My name is {Person1.FullName}. Whats your name?";
             Dialog.Choices.Add("", "I'm completely lost i forgot my name").Actions.Add("", "dialog", "IntroDislike");
             Dialog.Choices.Add("", "My name is secret can't tell").Actions.Add("", "dialog", "IntroDislike");

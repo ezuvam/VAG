@@ -11,32 +11,36 @@ namespace ezuvam.VAG
     {
         public string Name { get { return GetDataStr("Name"); } set { SetDataStr("Name", value); } }
 
-        public VAGCollection ChildQuests;
+        public VAGQuestsCollection Quests;
         public VAGQuest(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore)
         {
-            ChildQuests = new VAGCollection(GetDataObject("ChildQuests"), Store);
+            Quests = new VAGQuestsCollection(GetDataObject("Quests"), Store);
         }
         public override void LoadFromJSON(JSONClass jsonData)
         {
             base.LoadFromJSON(jsonData);
-            ChildQuests.LoadFromJSON(GetDataObject("ChildQuests"));
+            Quests.LoadFromJSON(GetDataObject("Quests"));
         }
-
         public override void Clear()
         {
             base.Clear();
-            ChildQuests.Clear();
+            Quests.Clear();
+        }
+        public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            base.AddToDict(Dict, AttrName);
+            Quests.AddToDict(Dict, AttrName);
         }
         public override void GameStateChanged(VAGHandler Handler)
         {
             base.GameStateChanged(Handler);
-            ChildQuests.GameStateChanged(Handler);
+            Quests.GameStateChanged(Handler);
         }
 
     }
-    public class VAGCollection : VAGCustomStorableCollection
+    public class VAGQuestsCollection : VAGCustomStorableCollection
     {
-        public VAGCollection(JSONClass initialData, VAGStore ownerStore) : base(initialData, "items", ownerStore) { }
+        public VAGQuestsCollection(JSONClass initialData, VAGStore ownerStore) : base(initialData, "items", ownerStore) { }
         protected override VAGCustomGameObject CreateNewItem(JSONClass initialData) { return new VAGQuest(initialData, Store); }
 
         public VAGQuest Add(string Name = "")

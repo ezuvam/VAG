@@ -16,10 +16,12 @@ namespace ezuvam.VAG {
          
         public VAGChoicesCollection Choices;
         public VAGActionsCollection Actions;
+        public VAGDialogsCollection Dialogs;
 
         public VAGDialog(JSONClass initialData, VAGStore ownerStore) : base(initialData, "items", ownerStore) {
             Choices = new VAGChoicesCollection(GetDataObject("Choices"), ownerStore);
             Actions = new VAGActionsCollection(GetDataObject("Actions"), ownerStore);     
+            Dialogs = new VAGDialogsCollection(GetDataObject("Dialogs"), ownerStore);   
          }
         protected override VAGCustomGameObject CreateNewItem(JSONClass initialData) { return new VAGDialog(initialData, Store); }   
 
@@ -27,28 +29,20 @@ namespace ezuvam.VAG {
         {
             base.LoadFromJSON(jsonData);
             Choices.LoadFromJSON(GetDataObject("Choices"));
-            Actions.LoadFromJSON(GetDataObject("Actions"));             
+            Actions.LoadFromJSON(GetDataObject("Actions"));
+            Dialogs.LoadFromJSON(GetDataObject("Dialogs"));
         }
         public override void Clear()
         {
             base.Clear();
             Choices.Clear();
-            Actions.Clear();   
-        }      
-
-        public VAGDialog Add(string Name = "")
-        {            
-            VAGDialog item = AddNewItem() as VAGDialog;
-            item.Name = Name;
-            return item;
-        }   
-
-        public VAGDialog ByIndex(int index) {
-            return childs[index] as VAGDialog;
+            Actions.Clear();
+            Dialogs.Clear();
         }
-
-        public new VAGDialog ByName(string Name) {
-            return base.ByName(Name) as VAGDialog;
+        public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            base.AddToDict(Dict, AttrName);
+            Dialogs.AddToDict(Dict, AttrName);
         }
 
         public override void Start(VAGHandler Handler) { 
@@ -71,12 +65,32 @@ namespace ezuvam.VAG {
             
             if (Actions.Count > 0) { Handler.PlayObject(Actions); }                   
 
-            for (int i = 0; i < Count; i++) {
-                Handler.PlayDialog(ByIndex(i));
+            for (int i = 0; i < Dialogs.Count; i++) {
+                Handler.PlayDialog(Dialogs.ByIndex(i));
             }
         }        
 
+    }
 
+        public class VAGDialogsCollection : VAGCustomStorableCollection
+    {    
+        public VAGDialogsCollection(JSONClass initialData, VAGStore ownerStore) : base(initialData, "items", ownerStore) { }
+        protected override VAGCustomGameObject CreateNewItem(JSONClass initialData) { return new VAGDialog(initialData, Store); }   
+
+        public VAGDialog Add(string Name = "")
+        {            
+            VAGDialog item = AddNewItem() as VAGDialog;
+            item.Name = Name;
+            return item;
+        }   
+
+        public VAGDialog ByIndex(int index) {
+            return childs[index] as VAGDialog;
+        }
+
+        public new VAGDialog ByName(string Name) {
+            return base.ByName(Name) as VAGDialog;
+        }
     }
 
 }
