@@ -1,8 +1,15 @@
-# Virt-A-Mate Plugin Template for VSCode
+# VAG for Virt-A-Mate Plugin
 
-## What you will need
+## What is VAG
+VAG stands for Virt-A-Game.
 
-- [Visual Studio Code](https://code.visualstudio.com/) to edit your plugins
+VAG is a plugin for VAM (Virt-A-Mate) to create games (multiple scenes) with different quests and branching dialogs that take place in different locations.
+
+## Features
+
+- [Multiple locations (scenes)] (not implemented yet, only one location supported for now)
+- [Multiple places in each location]
+VAG switches the atoms on/off 
 - [.NET Core SDK](https://dotnet.microsoft.com/download) to compile your code (optional)
 - [.NET Framework 3.5 Targeting Pack](https://stackoverflow.com/a/47621616/154480) (you might already have this)
 - [Virt-A-Mate](https://www.patreon.com/meshedvr/) to use your plugins
