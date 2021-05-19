@@ -23,6 +23,16 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCpu' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>RELEASE</DefineConstants>
+    <FileAlignment>4096</FileAlignment>    
+    <Optimize>true</Optimize>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>  
+
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
@@ -38,6 +48,9 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>../../../../VaM_Data/Managed/UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.VRModule">
+      <HintPath>../../../../VaM_Data/Managed/UnityEngine.VRModule.dll</HintPath>
+    </Reference>    
     <Reference Include="UnityEngine.UIModule">
       <HintPath>../../../../VaM_Data/Managed/UnityEngine.UIModule.dll</HintPath>
     </Reference>
@@ -59,10 +72,31 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>../../../../VaM_Data/Managed/Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>../../../../VaM_Data/Managed/UnityEngine.JSONSerializeModule.dll</HintPath>
+    </Reference>
+    
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="MyPlugin.cs" />
+  <ItemGroup>  
+    <Compile Include="src/UIUtils.cs" />    
+    <Compile Include="src/StorableUtils.cs" />
+    <Compile Include="src/VAGUI.cs" />
+    <Compile Include="src/VAGStates.cs" />
+    <Compile Include="src/VAGAtomSettings.cs" />
+    <Compile Include="src/VAGTransition.cs" />    
+    <Compile Include="src/VAGCharacter.cs" />
+    <Compile Include="src/VAGActions.cs" />
+    <Compile Include="src/VAGChoices.cs" />
+    <Compile Include="src/VAGDialog.cs" /> 
+    <Compile Include="src/VAGLocations.cs" />   
+    <Compile Include="src/VAGWardrobe.cs" />  
+    <Compile Include="src/VAGMood.cs" />  
+    <Compile Include="src/VAGQuests.cs" />
+    <Compile Include="src/VAGHandler.cs" />
+    <Compile Include="src/VAGPlugin.cs" />
+
+
   </ItemGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

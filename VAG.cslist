@@ -1,0 +1,16 @@
+src/StorableUtils.cs
+src/UIUtils.cs
+src/VAGStates.cs
+src/VAGTransition.cs
+src/VAGAtomSettings.cs
+src/VAGCharacter.cs
+src/VAGActions.cs
+src/VAGChoices.cs
+src/VAGDialog.cs
+src/VAGLocations.cs
+src/VAGWardrobe.cs
+src/VAGMood.cs
+src/VAGQuests.cs
+src/VAGHandler.cs
+src/VAGUI.cs
+src/VAGPlugin.cs

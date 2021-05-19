@@ -1,15 +1,15 @@
 { 
    "licenseType" : "CC BY-SA", 
-   "creatorName" : "Author", 
-   "packageName" : "MyPlugin", 
+   "creatorName" : "ezuvam", 
+   "packageName" : "VAG", 
    "includeVersionsInReferences" : "true", 
-   "description" : "v0.0.0 MyPlugin Description", 
+   "description" : "v0.0.0 VAG is a quest gamification plugin for VAM", 
    "credits" : "", 
    "instructions" : "", 
-   "promotionalLink" : "https://github.com/Author/MyPlugin", 
-   "programVersion" : "1.19.0.5", 
+   "promotionalLink" : "https://github.com/ezuvam/VAG", 
+   "programVersion" : "1.20.77.9", 
    "contentList" : [ 
-      "Custom\\Scripts\\Author\\MyPlugin\\MyPlugin.cs"
+      "Custom\\Scripts\\ezuvam\\VAG\\VAGPlugin.cs"
    ], 
    "dependencies" : { 
    }
