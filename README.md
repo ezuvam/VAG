@@ -9,12 +9,14 @@ VAG is a plugin for VAM (Virt-A-Mate) to create games (multiple scenes) with dif
 
 - Multiple locations (scenes). (not implemented yet, only one location supported for now)
 - Multiple places in each location. You can think of a place as a stage where VAG switches the required atoms on/off. So the story can change places (inside the same location) extremly fast
+- Branching dialogs with multiple choices. Each choice can have many actions.
+- Branching quests and child quests
 - Multiple character (NPC's)
 - Wardrobe for each character
 - Moods for each character
+- Player inventory
+- Quest items
 - Action system to execute actions. e. g. change wardrobe, change place, change mood, calling vam-triggers, interacting with other VAM-Plugins...
-- Branching dialogs with multiple choices. Each choice can have many actions.
-- Branching quests and child quests
 - Configurable transitions. eg. to dim all lights during place change progress
 - Simple atom modifier. eg. set on/off, set position
 - Game-Defintions in external JSON file.
