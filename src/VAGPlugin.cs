@@ -19,7 +19,7 @@ namespace ezuvam.VAG
         private JSONStorableString _gameFileString;
         public string currentSceneGameFileName { get { return _gameFileString?.val;  } }
 
-        const string DefaultGameFileName = "Saves\\scene\\ezuvam\\VAGDemo01\\VAGGameDemo01.vagame";
+        const string DefaultGameFileName = "Saves\\scene\\ezuvam\\VAGDemo01\\VAMQuestGameDemo01.vagame";
 
         public VAGPluginMenu(VAGPlugin plugin)
         {
@@ -401,8 +401,7 @@ namespace ezuvam.VAG
                 }
                 else
                 {
-                    //_questHandler.DebugTest3();
-                    //_questHandler.PlayDialog("LivingRoomDialog");
+
                 }
             }
             catch (Exception e)

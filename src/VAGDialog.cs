@@ -10,8 +10,9 @@ namespace ezuvam.VAG {
     {    
         public string Name { get {return GetDataStr("Name"); } set { SetDataStr("Name", value); } }        
         public string Caption { get {return GetDataStr("Caption"); } set { SetDataStr("Caption", value); } } 
-        public string DialogText { get {return GetDataStr("DialogText"); } set { SetDataStr("DialogText", value); } }         
-        public string SpeakerName { get {return GetDataStr("SpeakerName"); } set { SetDataStr("SpeakerName", value); } }
+        public string DialogText { get {return GetDataStr("DialogText"); } set { SetDataStr("DialogText", value); } }
+        public string TextMode { get {return GetDataStr("TextMode"); } set { SetDataStr("TextMode", value); } }        
+        public string Character { get {return GetDataStr("Character"); } set { SetDataStr("Character", value); } }
         public float TextSpeedFactor { get {return GetDataFloat("TextSpeedFactor", 1); } set { SetDataFloat("TextSpeedFactor", value); } }      
          
         public VAGChoicesCollection Choices;
@@ -48,13 +49,14 @@ namespace ezuvam.VAG {
         public override void Start(VAGHandler Handler) { 
             base.Start(Handler);           
 
-            VAGCharacter Character = Handler.Store.Characters.ByName(SpeakerName);
-            if (Assigned(Character)) {
-                States.TimeToRun = DialogText.Length * Handler.Store.TextSpeedFactor * TextSpeedFactor;                    
-                Character.SpeakSpeechBubble(Handler, DialogText, States.TimeToRun); 
+            VAGCharacter destChar = Handler.Store.Characters.ByName(Character);
+            if (Assigned(destChar)) {
+                States.TimeToRun = DialogText.Length * Handler.Store.TextSpeedFactor * TextSpeedFactor; 
+
+                destChar.SpeakSpeechBubble(Handler, DialogText, TextMode.Contains("thought"), States.TimeToRun); 
             } else
             {
-                SuperController.LogError($"Character with name {SpeakerName} not found!"); 
+                SuperController.LogError($"Character with name {Character} not found!"); 
             };
 
             if (Choices.Count > 0) { Handler.PlayObject(Choices, States.TimeToRun / 4); }
@@ -63,11 +65,8 @@ namespace ezuvam.VAG {
         public override void Finish(VAGHandler Handler)  {
             base.Finish(Handler);
             
-            if (Actions.Count > 0) { Handler.PlayObject(Actions); }                   
-
-            for (int i = 0; i < Dialogs.Count; i++) {
-                Handler.PlayDialog(Dialogs.ByIndex(i));
-            }
+            if (Actions.Count > 0) { Handler.PlayObject(Actions); }
+            if (Dialogs.Count > 0) { Handler.PlayObject(Dialogs); }      
         }        
 
     }
@@ -90,6 +89,15 @@ namespace ezuvam.VAG {
 
         public new VAGDialog ByName(string Name) {
             return base.ByName(Name) as VAGDialog;
+        }
+
+        public override void Start(VAGHandler Handler)
+        {
+            base.Start(Handler);
+
+            for (int i = 0; i < Count; i++) {
+                Handler.PlayDialog(ByIndex(i));
+            }            
         }
     }
 

@@ -58,11 +58,19 @@ namespace ezuvam.VAG
             Moods.Clear();
         }
 
-        public void SpeakSpeechBubble(VAGHandler Handler, string bubbletext, float speaktime)
+        public void SpeakSpeechBubble(VAGHandler Handler, string bubbletext, bool isThought, float speaktime)
         {
             if (Assigned(PersonAtom))
             {
-                SpeechBubbleControl bubble = PersonAtom.GetStorableByID("SpeechBubble") as SpeechBubbleControl;
+                SpeechBubbleControl bubble;
+
+                if (isThought) 
+                {
+                    bubble = PersonAtom.GetStorableByID("ThoughtBubble") as SpeechBubbleControl;
+                } else
+                {
+                    bubble = PersonAtom.GetStorableByID("SpeechBubble") as SpeechBubbleControl;
+                }
 
                 if (Assigned(bubble))
                 {

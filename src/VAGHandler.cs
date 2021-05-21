@@ -13,8 +13,8 @@ namespace ezuvam.VAG
         public float TextSpeedFactor { get { return GetDataFloat("TextSpeedFactor", 0.2f); } set { SetDataFloat("TextSpeedFactor", value); } }
         public string InitialGameStatsFile { get { return GetDataStr("InitialGameStatsFile"); } set { SetDataStr("InitialGameStatsFile", value); } }
         public string InitialDialog { get { return GetDataStr("InitialDialog"); } set { SetDataStr("InitialDialog", value); } }
-      
-
+        public string InitialQuest { get { return GetDataStr("InitialQuest"); } set { SetDataStr("InitialQuest", value); } }
+        
         private readonly int _currentStoreVersion = 1;
         public VAGQuestsCollection Quests;
         public VAMACharacterCollection Characters;
@@ -246,6 +246,11 @@ namespace ezuvam.VAG
 
                     Store.GameStateChanged(this);
 
+                    if (!string.IsNullOrEmpty(Store.InitialQuest))
+                    {
+                        StartQuest(Store.InitialQuest);
+                    }
+                    else
                     if (!string.IsNullOrEmpty(Store.InitialDialog))
                     {
                         PlayDialog(Store.InitialDialog);
@@ -349,6 +354,23 @@ namespace ezuvam.VAG
                 SuperController.LogError($"Dialog with name {Name} not found!");
             }
         }
+        public void StartQuest(VAGQuest Quest)
+        {
+            PlayObject(Quest);
+        }        
+        public void StartQuest(string Name)
+        {
+            VAGQuest Quest = Store.Quests.ByName(Name);
+            if (Assigned(Quest))
+            {
+                StartQuest(Quest);
+            }
+            else
+            {
+                SuperController.LogError($"Quest with name {Name} not found!");
+            }
+        }
+        
 
         public void ChangePlace(string Name, bool allowSceneChange = true)
         {
@@ -468,280 +490,6 @@ namespace ezuvam.VAG
             }
         }
 
-        public void DebugTest1()
-        {
-            SuperController.LogMessage("VAGHandler creating DebugTest1 data");
-
-            Store.Clear();
-            VAGActionsCollection actions;
-            VAGAtomSetting atomSetting;
-
-            VAGCharacter Person1 = Store.Characters.Add("Person1");
-            Person1.FullName = "Alexa Questa";
-            Person1.FirstName = "Questa";
-            Person1.LastName = "Alexa";
-            Person1.AtomName = "Person";
-
-            VAGCharacter Person2 = Store.Characters.Add("Person2");
-            Person2.FullName = "Hank Wank";
-            Person2.FirstName = "Wank";
-            Person2.LastName = "Hank";
-            Person2.AtomName = "Person#2";
-
-            VAGTransition transition;
-            transition = Store.Transitions.Add("trans_inplace");
-            transition.Delay = 0;
-            atomSetting = transition.Atoms.Add("");
-            atomSetting.AtomName = "3PointLightSetup/LightFrontRight";
-            atomSetting.OnEnabled = true;
-            atomSetting.On = false;
-
-            atomSetting = transition.Atoms.Add("");
-            atomSetting.AtomName = "3PointLightSetup/LightFrontLeft";
-            atomSetting.OnEnabled = true;
-            atomSetting.On = false;
-
-            atomSetting = transition.Atoms.Add("");
-            atomSetting.AtomName = "3PointLightSetup/LightBack";
-            atomSetting.OnEnabled = true;
-            atomSetting.On = false;
-
-            VAGLocation Location;
-            VAGPlace questPlace;
-
-            Store.GameStates.activeLocation = "home";
-
-            Location = Store.Locations.Add("home", "your home");
-            questPlace = Location.Places.Add("livingroom", "the living room");
-            questPlace.Transition = "trans_inplace";
-            atomSetting = questPlace.Atoms.Add("");
-            atomSetting.AtomName = "Person";
-
-            questPlace = Location.Places.Add("kitchen", "wifes work room ;-)");
-            questPlace.Transition = "trans_inplace";
-            atomSetting = questPlace.Atoms.Add("");
-            atomSetting.AtomName = "Person";
-
-            questPlace = Location.Places.Add("jard", "the jard outside");
-            questPlace.Transition = "trans_inplace";
-            atomSetting = questPlace.Atoms.Add("");
-            atomSetting.AtomName = "Person";
-
-            Location = Store.Locations.Add("city", "city");
-            Location.Places.Add("restaurant", "a nice restaurant");
-
-            Store.Quests.Add("test quest 1").Quests.Add("Sub quest 1.1").Quests.Add("Subquest 1.1.1");
-            Store.Quests.Add("test quest 2").Quests.Add("Sub quest 2.1").Quests.Add("Subquest 2.1.1");
-
-            VAGDialog Dialog = Store.Dialogs.Add("Intro");
-            Dialog.DialogText = "Hey there!";
-
-            Dialog = Dialog.Dialogs.Add();
-            Dialog.DialogText = "I'm over here";
-
-            Dialog = Dialog.Dialogs.Add();
-            Dialog.DialogText = "Yes you! Don't be shy, come to me :)";
-
-            Dialog = Dialog.Dialogs.Add();
-            Dialog.DialogText = "Nice to meet you sweety. My name is {Person1.FullName}. Whats your name?";
-            Dialog.Choices.Add("", "I'm completely lost i forgot my name").Actions.Add("", "dialog", "IntroDislike");
-            Dialog.Choices.Add("", "My name is secret can't tell").Actions.Add("", "dialog", "IntroDislike");
-            Dialog.Choices.Add("", "My name is Rudolf the Reindeer").Actions.Add("", "dialog", "IntroFunny");
-            Dialog.Choices.Add("", "I'm {Person2.FullName} nice to meet you*").Actions.Add("", "dialog", "IntroLike");
-
-            Dialog = Store.Dialogs.Add("IntroLike");
-            Dialog.DialogText = "Nice to meet you {Person2.LastName}. I saw that you have been watching me secretly. Saw anyting you like?";
-            Dialog.Choices.Add("", "Well as you ask, your tits are nice*").Actions.Add("", "dialog", "LikeTits");
-            Dialog.Choices.Add("", "I want to fuck your ass").Actions.Add("", "dialog", "IntroDislike");
-            Dialog.Choices.Add("", "Naa nothing, you are fat and ugly").Actions.Add("", "dialog", "IntroDislike");
-
-            Dialog = Store.Dialogs.Add("LikeTits");
-            Dialog.DialogText = "hihihi you are very straightforward... i kindy like that on guys. You like to see them?";
-            Dialog.Choices.Add("", "Naa keep that hanging sacks packed please").Actions.Add("", "dialog", "FinishNoShow");
-            Dialog.Choices.Add("", "You going to suck my cock after?").Actions.Add("", "dialog", "FinishNoShow");
-            Dialog.Choices.Add("", "uhm, yes... love to!*").Actions.Add("", "dialog", "AskToGoInside");
-
-            Dialog = Store.Dialogs.Add("AskToGoInside");
-            Dialog.DialogText = "mmm baby... we better go inside don't you think?";
-            Dialog.Choices.Add("", "I don't care if the neighbour can see you tits. Strip of now baby.").Actions.Add("", "dialog", "IntroDislike");
-            actions = Dialog.Choices.Add("", "Move your nice ass inside that house sweety*").Actions;
-            actions.Add("", "gotoplace", "livingroom");
-            actions.Add("", "dialog", "StripTits", 10);
-
-            Dialog = Store.Dialogs.Add("StripTits");
-            Dialog.DialogText = "Here we go sweety but you own me something for that ;-)";
-            Dialog.Actions.Add("", "clothing", "", 5);  // TODO    
-            Dialog.Actions.Add("", "dialog", "Finish", 10);
-
-            Dialog = Store.Dialogs.Add("IntroFunny");
-            Dialog.DialogText = "HAHAHA You are funny. I guess we going to have a lot of fun together.";
-            Dialog.Actions.Add("", "dialog", "Finish");
-
-            Dialog = Store.Dialogs.Add("IntroDislike");
-            Dialog.DialogText = "Dude what's wrong with you. I'm out";
-            Dialog.Actions.Add("", "dialog", "Finish");
-
-            Dialog = Store.Dialogs.Add("FinishNoShow");
-            Dialog.DialogText = "You rude, keep dreaming. I'm out";
-            Dialog.Actions.Add("", "dialog", "Finish");
-
-            Dialog = Store.Dialogs.Add("Finish");
-            Dialog.DialogText = "Thanks for playing. You reached the end, follow the * choices for full demo";
-
-
-            Store.Changed();
-            //SaveToFile("./Custom/Scripts/ezuvam/VAG/quests/demo1.quest.json");
-            //LoadFromFile("./Custom/Scripts/ezuvam/VAG/quests/demo1.quest.json");
-            //SaveToFile("./Custom/Scripts/ezuvam/VAG/quests/demo1.quest_resave_test.json");
-
-        }
-
-        public void DebugTest2()
-        {
-            SuperController.LogMessage("VAGHandler creating DebugTest2 data");
-
-            Store.Clear();
-
-            VAGCharacter Person1 = Store.Characters.Add("Person1");
-            Person1.FullName = "Alexa Questa";
-            Person1.FirstName = "Questa";
-            Person1.LastName = "Alexa";
-            Person1.AtomName = "Person";
-
-            VAGDialog Dialog = Store.Dialogs.Add("Intro");
-            Dialog.DialogText = "";
-            Dialog.Choices.Add("", "I'm completely lost i forgot my name").Actions.Add("", "dialog", "IntroDislike");
-            Dialog.Choices.Add("", "My name is secret can't tell").Actions.Add("", "dialog", "IntroDislike");
-            Dialog.Choices.Add("", "My name is Rudolf the Reindeer").Actions.Add("", "dialog", "IntroFunny");
-            Dialog.Choices.Add("", "I'm {Person2.FullName} nice to meet you*").Actions.Add("", "dialog", "IntroLike");
-
-            Dialog.Choices.Add("", "I'm completely lost i forgot my name").Actions.Add("", "dialog", "IntroDislike");
-            Dialog.Choices.Add("", "My name is secret can't tell").Actions.Add("", "dialog", "IntroDislike");
-            Dialog.Choices.Add("", "My name is Rudolf the Reindeer").Actions.Add("", "dialog", "IntroFunny");
-            Dialog.Choices.Add("", "I'm {Person2.FullName} nice to meet you*").Actions.Add("", "dialog", "IntroLike");
-
-            Store.Changed();
-        }
-
-
-        public void DebugTest3()
-        {
-            SuperController.LogMessage("VAGHandler creating DebugTest3 data");
-
-            Store.Clear();
-
-            VAGActionsCollection actions;
-            VAGAtomSetting atomSetting;
-
-            VAGCharacter Person1 = Store.Characters.Add("Person1");
-            Person1.FullName = "Alexa Questa";
-            Person1.FirstName = "Questa";
-            Person1.LastName = "Alexa";
-            Person1.AtomName = "Person";
-
-            VAGCharacter Person2 = Store.Characters.Add("Person2");
-            Person2.FullName = "Hank Wank";
-            Person2.FirstName = "Wank";
-            Person2.LastName = "Hank";
-            Person2.AtomName = "Person#2";
-
-            VAGTransition transition;
-            transition = Store.Transitions.Add("trans_inplace");
-            transition.Delay = 1f;
-
-            atomSetting = transition.Atoms.Add("");
-            atomSetting.AtomName = "LightSun";
-            atomSetting.OnEnabled = true;
-            atomSetting.On = false;
-            /*
-            atomSetting = transition.Atoms.Add("");
-            atomSetting.AtomName = "3PointLightSetup/LightFrontRight";
-            atomSetting.OnEnabled = true;
-            atomSetting.On = false;
-
-            atomSetting = transition.Atoms.Add("");
-            atomSetting.AtomName = "3PointLightSetup/LightFrontLeft";
-            atomSetting.OnEnabled = true;
-            atomSetting.On = false;
-
-            atomSetting = transition.Atoms.Add("");
-            atomSetting.AtomName = "3PointLightSetup/LightBack";
-            atomSetting.OnEnabled = true;
-            atomSetting.On = false;    
-            */
-
-            VAGLocation Location;
-            VAGPlace questPlace;
-
-            Store.GameStates.activeLocation = "home";
-            Location = Store.Locations.Add("home", "your home");
-
-            questPlace = Location.Places.Add("livingroom_place", "the living room");
-            questPlace.Transition = "trans_inplace";
-            //atomSetting = questPlace.Atoms.Add();
-            //atomSetting.AtomName = "Person";
-            //atomSetting.PositionEnabled = true;
-            //atomSetting.X = 1;
-
-            questPlace = Location.Places.Add("bedroom_place", "the bed room");
-            questPlace.Transition = "trans_inplace";
-            //atomSetting = questPlace.Atoms.Add();
-            //atomSetting.AtomName = "Person";
-            //atomSetting.PositionEnabled = true;
-            //atomSetting.X = 0;
-
-            questPlace = Location.Places.Add("beachnear_place", "the beach near the house");
-            questPlace.Transition = "trans_inplace";
-
-            questPlace = Location.Places.Add("beachfar_place", "the beach far away  from the house");
-            questPlace.Transition = "trans_inplace";
-
-
-            VAGDialog Dialog = Store.Dialogs.Add("LivingRoomDialog");
-            Dialog.DialogText = "The living room is nice. Where should we go?";
-            Dialog.Choices.Add("", "let's stay").Actions.Add("", "dialog", "LivingRoomDialog");
-
-            actions = Dialog.Choices.Add("", "let's go to the bed room").Actions;
-            actions.Add("", "gotoplace", "bedroom_place");
-            actions.Add("", "dialog", "BedRoomRoomDialog", 10);
-
-            actions = Dialog.Choices.Add("", "Nice view, let's go to the beach").Actions;
-            actions.Add("", "gotoplace", "beachnear_place");
-            actions.Add("", "dialog", "BeachNearRoomDialog", 10);
-
-
-            Dialog = Store.Dialogs.Add("BedRoomRoomDialog");
-            Dialog.DialogText = "Looks like a comfy bed :)";
-            Dialog.Choices.Add("", "well we can show you how comfy it is ;)").Actions.Add("", "dialog", "BedRoomRoomDialog");
-
-            actions = Dialog.Choices.Add("", "let's go back to the living room").Actions;
-            actions.Add("", "gotoplace", "livingroom_place");
-            actions.Add("", "dialog", "LivingRoomDialog", 10);
-
-
-            Dialog = Store.Dialogs.Add("BeachNearRoomDialog");
-            Dialog.DialogText = "awww what a nice beach, but looks a bit crowded";
-            Dialog.Choices.Add("", "lets jump into the wather").Actions.Add("", "dialog", "BeachNearRoomDialog");
-
-            actions = Dialog.Choices.Add("", "there is a more quiet place around the clif, follow me").Actions;
-            actions.Add("", "gotoplace", "beachfar_place");
-            actions.Add("", "dialog", "BeachFarRoomDialog", 10);
-
-
-            Dialog = Store.Dialogs.Add("BeachFarRoomDialog");
-            Dialog.DialogText = "love this place, no one can see us here *giggles*";
-            Dialog.Choices.Add("", "well i can see you ;)").Actions.Add("", "dialog", "BeachFarRoomDialog");
-
-            actions = Dialog.Choices.Add("", "let's go back").Actions;
-            actions.Add("", "gotoplace", "beachnear_place");
-            actions.Add("", "dialog", "BeachNearRoomDialog", 10);
-
-            ActiveGameFileName = "./Custom/Scripts/ezuvam/VAG/quests/VAGGameDemo01.json";
-            Store.Changed();
-        }
-
     }
-
-
 
 }

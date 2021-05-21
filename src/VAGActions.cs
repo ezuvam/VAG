@@ -18,11 +18,11 @@ namespace ezuvam.VAG
         public string ReceiverTargetName { get { return GetDataStr("ReceiverTargetName"); } set { SetDataStr("ReceiverTargetName", value); } }
         public string Plugin { get { return GetDataStr("Plugin"); } set { SetDataStr("Plugin", value); } }
         public string Method { get { return GetDataStr("Method"); } set { SetDataStr("Method", value); } }
-        public string MethodParam { get { return GetDataStr("MethodParam"); } set { SetDataStr("MethodParam", value); } }        
-        public float OffsetX { get { return GetDataFloat("OffsetX"); } set { SetDataFloat("OffsetX", value); } }      
-        public float OffsetY { get { return GetDataFloat("OffsetY"); } set { SetDataFloat("OffsetY", value); } }      
-        public float OffsetZ { get { return GetDataFloat("OffsetZ"); } set { SetDataFloat("OffsetZ", value); } }    
-        public float StartDelay { get { return GetDataFloat("StartDelay"); } set { SetDataFloat("StartDelay", value); } }        
+        public string MethodParam { get { return GetDataStr("MethodParam"); } set { SetDataStr("MethodParam", value); } }
+        public float OffsetX { get { return GetDataFloat("OffsetX"); } set { SetDataFloat("OffsetX", value); } }
+        public float OffsetY { get { return GetDataFloat("OffsetY"); } set { SetDataFloat("OffsetY", value); } }
+        public float OffsetZ { get { return GetDataFloat("OffsetZ"); } set { SetDataFloat("OffsetZ", value); } }
+        public float StartDelay { get { return GetDataFloat("StartDelay"); } set { SetDataFloat("StartDelay", value); } }
 
         public VAGAction(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore) { }
 
@@ -57,9 +57,9 @@ namespace ezuvam.VAG
                             break;
                         }
 
+
                     case "playercamera":
                         {
-                            Camera cam = CameraTarget.centerTarget?.targetCamera;
                             Atom atom = GetTargetAtom();
                             JSONStorable js;
 
@@ -74,8 +74,7 @@ namespace ezuvam.VAG
                             {
                                 //SuperController.LogMessage($"player cam {cam.name} to {js.transform.position}");
 
-                                cam.transform.position = new Vector3(js.transform.position.x - OffsetX , js.transform.position.y - OffsetY, js.transform.position.z - OffsetZ);
-                                cam.transform.LookAt(js.transform);                                
+                                UpdateNavRigPosition(js.transform);
 
                             }
                             else
@@ -208,9 +207,16 @@ namespace ezuvam.VAG
                             if (atom != null)
                             {
                                 JSONStorable js = FindStorableByNameFlex(atom, ReceiverName);
-                                js.SetStringParamValue(ActionParam, ActionParamValue);
+                                if (Assigned(js))
+                                {
+                                    js.SetStringParamValue(ActionParam, ActionParamValue);
 
-                                SuperController.LogMessage($"set stringparam on {atom.name} - {ReceiverName} - {ActionParam} to {ActionParamValue}");
+                                    SuperController.LogMessage($"set stringparam on {atom.name} - {ReceiverName} - {ActionParam} to {ActionParamValue}");
+                                }
+                                else
+                                {
+                                    SuperController.LogError($"{nameof(VAGPlugin)} VAGAction.Execute {ActionType} ReceiverName {ReceiverName} not found on atom");
+                                }
                             }
                             else
                             {
@@ -225,9 +231,16 @@ namespace ezuvam.VAG
                             if (atom != null)
                             {
                                 JSONStorable js = FindStorableByNameFlex(atom, ReceiverName);
-                                js.SetBoolParamValue(ActionParam, Boolean.Parse(ActionParamValue));
 
-                                SuperController.LogMessage($"set boolparam on {atom.name} - {ReceiverName} - {ActionParam} to {ActionParamValue}");
+                                if (Assigned(js))
+                                {
+                                    js.SetBoolParamValue(ActionParam, Boolean.Parse(ActionParamValue));
+                                    SuperController.LogMessage($"set boolparam on {atom.name} - {ReceiverName} - {ActionParam} to {ActionParamValue}");
+                                }
+                                else
+                                {
+                                    SuperController.LogError($"{nameof(VAGPlugin)} VAGAction.Execute {ActionType} ReceiverName {ReceiverName} not found on atom");
+                                }
                             }
                             else
                             {
@@ -242,22 +255,46 @@ namespace ezuvam.VAG
                             if (atom != null)
                             {
                                 JSONStorable js = FindStorableByNameFlex(atom, ReceiverName);
-                                js.SetFloatParamValue(ActionParam, float.Parse(ActionParamValue));
 
-                                SuperController.LogMessage($"set floatparam on {atom.name} - {ReceiverName} - {ActionParam} to {ActionParamValue}");
+                                if (Assigned(js))
+                                {
+                                    js.SetFloatParamValue(ActionParam, float.Parse(ActionParamValue));
+
+                                    SuperController.LogMessage($"set floatparam on {atom.name} - {ReceiverName} - {ActionParam} to {ActionParamValue}");
+                                }
+                                else
+
+                                {
+                                    SuperController.LogError($"{nameof(VAGPlugin)} VAGAction.Execute {ActionType} ReceiverName {ReceiverName} not found on atom");
+                                }
                             }
                             else
                             {
                                 LogTargetAtomNullError();
                             }
                             break;
-                        }                        
+                        }
                 }
-            } catch  (Exception e)
+            }
+            catch (Exception e)
             {
-               SuperController.LogError($"{nameof(VAGPlugin)} VAGAction.Execute {ActionType}: {e}"); 
+                SuperController.LogError($"{nameof(VAGPlugin)} VAGAction.Execute {ActionType}: {e}");
             }
 
+        }
+        private void UpdateNavRigPosition(Transform Dest)
+        {
+            Transform navigationRig = SuperController.singleton.navigationRig;
+            /* this messes up the rotaion if head is or ato is rotated. 
+            var navigationRigRotation = Dest.transform.rotation;
+            navigationRigRotation.SetLookRotation(navigationRigRotation * Vector3.forward, Vector3.up);
+            navigationRigRotation *= Quaternion.Euler(0, 180, 0);
+            navigationRig.rotation = navigationRigRotation;        
+            */
+            Vector3 cameraDelta = CameraTarget.centerTarget.transform.position - navigationRig.transform.position - CameraTarget.centerTarget.transform.rotation * new Vector3(0, 0, 0);
+            Vector3 resultPosition = Dest.transform.position - cameraDelta + Dest.transform.rotation * new Vector3(0, 0, 0);
+
+            navigationRig.transform.position = resultPosition;
         }
         public Atom GetTargetAtom()
         {

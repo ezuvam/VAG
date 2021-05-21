@@ -9,7 +9,6 @@ namespace ezuvam.VAG
     public class VAGChoice : VAGCustomGameObject
     {
         public string Name { get { return GetDataStr("Name"); } set { SetDataStr("Name", value); } }
-
         public string ButtonText { get { return GetDataStr("ButtonText"); } set { SetDataStr("ButtonText", value); } }
         public VAGActionsCollection Actions;
         public VAGChoice(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore)

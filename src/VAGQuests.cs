@@ -50,6 +50,11 @@ namespace ezuvam.VAG
             return item;
         }
 
+        public new VAGQuest ByName(string Name)
+        {
+            return base.ByName(Name) as VAGQuest;
+        }        
+
         public VAGQuest ByIndex(int index)
         {
             return childs[index] as VAGQuest;
