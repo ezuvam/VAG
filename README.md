@@ -25,4 +25,4 @@ VAG is a plugin for VAM (Virt-A-Mate) to create games (multiple scenes) with dif
 
 ## License
 
-[MIT](LICENSE.md)
+[CC BY-SA](LICENSE.md)

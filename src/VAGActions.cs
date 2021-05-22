@@ -286,6 +286,8 @@ namespace ezuvam.VAG
         {
             Transform navigationRig = SuperController.singleton.navigationRig;
             /* this messes up the rotaion if head is or ato is rotated. 
+            TODO: check if this works: https://github.com/TacoVengeance/vam-rotator/blob/master/Rotator.cs
+            
             var navigationRigRotation = Dest.transform.rotation;
             navigationRigRotation.SetLookRotation(navigationRigRotation * Vector3.forward, Vector3.up);
             navigationRigRotation *= Quaternion.Euler(0, 180, 0);
