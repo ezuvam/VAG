@@ -14,6 +14,8 @@ namespace ezuvam.VAG
         public string ShortName { get { return GetDataStr("ShortName"); } set { SetDataStr("ShortName", value); } }
         public string LastName { get { return GetDataStr("LastName"); } set { SetDataStr("LastName", value); } }
         public string FirstName { get { return GetDataStr("FirstName"); } set { SetDataStr("FirstName", value); } }
+        public string Bio { get { return GetDataStr("Bio"); } set { SetDataStr("Bio", value); } }
+        public string Nationality { get { return GetDataStr("Nationality"); } set { SetDataStr("Nationality", value); } }
         public int Age { get { return GetDataInt("Age"); } set { SetDataInt("Age", value); } }
 
         public VAGMood ActiveMood { get { return _activeMood; } }
