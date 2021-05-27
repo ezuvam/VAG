@@ -60,22 +60,11 @@ namespace ezuvam.VAG
 
                     case "playercamera":
                         {
-                            Atom atom = GetTargetAtom();
-                            JSONStorable js;
+                            Atom atom = GetTargetAtom();                            
 
-                            if (atom?.type == "Person")
+                            if (atom != null)
                             {
-                                js = atom?.GetStorableByID("headControl");
-                            }
-                            else
-                            { js = atom; }
-
-                            if (js != null)
-                            {
-                                //SuperController.LogMessage($"player cam {cam.name} to {js.transform.position}");
-
-                                UpdateNavRigPosition(js.transform);
-
+                                UpdateNavRigPosition(atom);
                             }
                             else
                             {
@@ -282,9 +271,8 @@ namespace ezuvam.VAG
             }
 
         }
-        private void UpdateNavRigPosition(Transform Dest)
+        private void UpdateNavRigPosition(Atom Dest)
         {
-            Transform navigationRig = SuperController.singleton.navigationRig;
             /* this messes up the rotaion if head is or ato is rotated. 
             TODO: check if this works: https://github.com/TacoVengeance/vam-rotator/blob/master/Rotator.cs
             
@@ -293,10 +281,28 @@ namespace ezuvam.VAG
             navigationRigRotation *= Quaternion.Euler(0, 180, 0);
             navigationRig.rotation = navigationRigRotation;        
             */
+
+            /*
+            Transform navigationRig = SuperController.singleton.navigationRig;            
             Vector3 cameraDelta = CameraTarget.centerTarget.transform.position - navigationRig.transform.position - CameraTarget.centerTarget.transform.rotation * new Vector3(0, 0, 0);
             Vector3 resultPosition = Dest.transform.position - cameraDelta + Dest.transform.rotation * new Vector3(0, 0, 0);
-
             navigationRig.transform.position = resultPosition;
+            */
+            
+            SuperController.singleton.ResetNavigationRigPositionRotation();
+
+            Transform destTransform = Dest.mainController.control;            
+            Vector3 targetRotation = destTransform.eulerAngles;
+            Vector3 targetPosition = destTransform.position;
+            Transform rigTransform = SuperController.singleton.navigationRig.transform;
+            Transform monitorCenterCameraTransform = SuperController.singleton.MonitorCenterCamera.transform;
+
+            rigTransform.eulerAngles = new Vector3(0, targetRotation.y, 0);
+            monitorCenterCameraTransform.eulerAngles = targetRotation;
+            monitorCenterCameraTransform.localEulerAngles = new Vector3(monitorCenterCameraTransform.localEulerAngles.x, 0, 0);
+            SuperController.singleton.playerHeightAdjust += targetPosition.y - SuperController.singleton.centerCameraTarget.transform.position.y;
+            rigTransform.position = new Vector3(targetPosition.x, 0, targetPosition.z);
+
         }
         public Atom GetTargetAtom()
         {
