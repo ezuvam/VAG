@@ -6,7 +6,7 @@ using SimpleJSON;
 
 namespace ezuvam.VAG
 {
-
+    public delegate void VAGChoiceEventHandler(VAGChoicesUI sender, int choiceIndex);
     public class VAGUIChoiceButton : VAMUIButton
     {
         public int ChoiceIndex;
@@ -14,6 +14,7 @@ namespace ezuvam.VAG
     }
     public class VAGChoicesUI : VAMCustomVerticalLayoutUIWnd
     {
+        public event VAGChoiceEventHandler OnChoiceSelected;
         private VAGChoicesCollection _activeChoices;
         public VAGChoicesCollection ActiveChoices { set { SetActiveChoices(value); } get { return _activeChoices; } }
         protected List<VAGUIChoiceButton> ButtonList;
@@ -24,8 +25,6 @@ namespace ezuvam.VAG
 
             AutoHeight = true;
         }
-
-
         protected void HideAllButtons()
         {
             BeginUpdate();
@@ -42,16 +41,24 @@ namespace ezuvam.VAG
             }
         }
 
+        protected virtual void DoOnChoiceSelected(int choiceIndex)
+        {
+            if (ActiveChoices != null)
+            {
+                if (OnChoiceSelected != null)
+                {
+                    OnChoiceSelected(this, choiceIndex);
+                }
+                ActiveChoices.ExecuteChoosen((OwnerPlugin as VAGPlugin).QuestHandler, choiceIndex);
+            }
+        }
         protected VAGUIChoiceButton CreateButton()
         {
             VAGUIChoiceButton btn = new VAGUIChoiceButton(this, "");
 
             btn.button.button.onClick.AddListener(() =>
             {
-                if (ActiveChoices != null)
-                {
-                    ActiveChoices.ExecuteChoosen((OwnerPlugin as VAGPlugin).QuestHandler, btn.ChoiceIndex);
-                }
+                DoOnChoiceSelected(btn.ChoiceIndex);
             });
 
             ButtonList.Add(btn);
@@ -150,22 +157,22 @@ namespace ezuvam.VAG
             btnInventoryUI = new VAMUIWindowPopUpButton(this, "BtnInventoryUI", "Inventory");
             btnInventoryUI.button.button.onClick.AddListener(() =>
             {
-               
+
             });
 
             btnQuestsUI = new VAMUIWindowPopUpButton(this, "btnQuestsUI", "Quests");
             btnQuestsUI.button.button.onClick.AddListener(() =>
             {
-               
+
             });
 
             btnMapUI = new VAMUIWindowPopUpButton(this, "btnMapUI", "Map");
             btnMapUI.button.button.onClick.AddListener(() =>
             {
-               
+
             });            
 
-               
+
             });
             */
         }

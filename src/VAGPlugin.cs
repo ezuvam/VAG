@@ -17,7 +17,7 @@ namespace ezuvam.VAG
         private JSONStorableStringChooser _placeChooser;
         private JSONStorableStringChooser _atomChooser;
         private JSONStorableString _gameFileString;
-        public string currentSceneGameFileName { get { return _gameFileString?.val;  } }
+        public string currentSceneGameFileName { get { return _gameFileString?.val; } }
 
         const string DefaultGameFileName = "Saves\\scene\\ezuvam\\VAGDemo01\\VAMQuestGameDemo01.vagame";
 
@@ -67,8 +67,8 @@ namespace ezuvam.VAG
             UIDynamicButton btnSaveInitialGameStatsFile = _plugin.CreateButton("Save current gamestate to initial");
             if (btnSaveInitialGameStatsFile != null)
             {
-                btnSaveInitialGameStatsFile.button.onClick.AddListener(() => { _plugin.QuestHandler.SaveInitialGameStatsFile(); } );
-            }            
+                btnSaveInitialGameStatsFile.button.onClick.AddListener(() => { _plugin.QuestHandler.SaveInitialGameStatsFile(); });
+            }
 
             UIDynamic spacer = _plugin.CreateSpacer(false);
             //spacer.height = 400f;
@@ -176,7 +176,7 @@ namespace ezuvam.VAG
             _placeChooser.choices = list;
         }
         private void doOnPlaceChanged(string placeName)
-        {              
+        {
             _plugin.QuestHandler.ChangePlace(placeName, false);
         }
 
@@ -206,7 +206,7 @@ namespace ezuvam.VAG
         {
             _gameFileString.SetVal(DefaultGameFileName);
             _plugin.QuestHandler.Store.Clear();
-            _plugin.QuestHandler.LoadStoreFromFile(DefaultGameFileName);            
+            _plugin.QuestHandler.LoadStoreFromFile(DefaultGameFileName);
         }
 
         private void doOnAddAtomToPlaceClick()
@@ -225,7 +225,7 @@ namespace ezuvam.VAG
                         atomSetting.PositionEnabled = false;
                         atomSetting.OnEnabled = true;
                     }
-                                      
+
                     atomSetting.LoadFromScene();
                 }
             }
@@ -242,6 +242,82 @@ namespace ezuvam.VAG
         public VAGHandler QuestHandler { get { return _questHandler; } }
         public VAGPluginMenu pluginMenu;
 
+
+        void RegisterActions()
+        {
+            JSONStorableString doActivateItem = new JSONStorableString("doActivateItem", "", (JSONStorableString value) =>
+                {
+                    if (!string.IsNullOrEmpty(value.val))
+                    {
+                        QuestHandler.ActivateItem(value.val);
+                        value.SetVal("");
+                    }
+                }
+            );
+            RegisterString(doActivateItem);
+
+            JSONStorableString doPlayDialog = new JSONStorableString("doPlayDialog", "", (JSONStorableString value) =>
+                {
+                    if (!string.IsNullOrEmpty(value.val))
+                    {
+                        QuestHandler.PlayDialog(value.val);
+                        value.SetVal("");
+                    }
+                }
+            );
+            RegisterString(doPlayDialog);
+
+            JSONStorableString doStartQuest = new JSONStorableString("doStartQuest", "", (JSONStorableString value) =>
+                {
+                    if (!string.IsNullOrEmpty(value.val))
+                    {
+                        QuestHandler.PlayDialog(value.val);
+                        value.SetVal("");
+                    }
+                }
+            );
+            RegisterString(doStartQuest);
+
+            JSONStorableString doChangePlace = new JSONStorableString("doChangePlace", "", (JSONStorableString value) =>
+                {
+                    if (!string.IsNullOrEmpty(value.val))
+                    {
+                        QuestHandler.ChangePlace(value.val);
+                        value.SetVal("");
+                    }
+                }
+            );
+            RegisterString(doChangePlace);
+
+            JSONStorableString doChangeWardrobe = new JSONStorableString("doChangeWardrobe", "", (JSONStorableString value) =>
+                {
+                    if (!string.IsNullOrEmpty(value.val))
+                    {
+                        string[] param;
+                        param = value.val.Split(',');
+
+                        QuestHandler.ChangeWardrobe(param[0], param[1]);
+                        value.SetVal("");
+                    }
+                }
+            );
+            RegisterString(doChangeWardrobe);            
+
+            JSONStorableString ChangeMood = new JSONStorableString("ChangeMood", "", (JSONStorableString value) =>
+                {
+                    if (!string.IsNullOrEmpty(value.val))
+                    {
+                        string[] param;
+                        param = value.val.Split(',');
+
+                        QuestHandler.ChangeWardrobe(param[0], param[1]);
+                        value.SetVal("");
+                    }
+                }
+            );
+            RegisterString(ChangeMood); 
+
+        }
 
         public override void Init()
         {   // IMPORTANT - DO NOT make custom enums. The dynamic C# complier crashes Unity when it encounters these for
@@ -268,12 +344,14 @@ namespace ezuvam.VAG
                     {
                         pluginMenu.Init();
                     }
-                 
+
                     _questHandler.Reset();
-                    _questHandler.MainMenuUI.AutoPlace();                    
+                    _questHandler.MainMenuUI.AutoPlace();
 
                     SuperController.singleton.onSceneLoadedHandlers += doOnSceneLoaded;
                     doOnSceneLoaded();
+
+                    RegisterActions();
 
                     SuperController.LogMessage($"{nameof(VAGPlugin)} initialized");
                 }
@@ -390,7 +468,8 @@ namespace ezuvam.VAG
         {
             try
             {
-                if (!string.IsNullOrEmpty(pluginMenu.currentSceneGameFileName)) {
+                if (!string.IsNullOrEmpty(pluginMenu.currentSceneGameFileName))
+                {
                     _questHandler.ActiveGameFileName = pluginMenu.currentSceneGameFileName;
                 }
 

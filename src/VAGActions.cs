@@ -271,34 +271,21 @@ namespace ezuvam.VAG
             }
 
         }
-        private void UpdateNavRigPosition(Atom Dest)
+        private void UpdateNavRigPosition(Atom destAtom)
         {
-            /* this messes up the rotaion if head is or ato is rotated. 
-            TODO: check if this works: https://github.com/TacoVengeance/vam-rotator/blob/master/Rotator.cs
-            
-            var navigationRigRotation = Dest.transform.rotation;
-            navigationRigRotation.SetLookRotation(navigationRigRotation * Vector3.forward, Vector3.up);
-            navigationRigRotation *= Quaternion.Euler(0, 180, 0);
-            navigationRig.rotation = navigationRigRotation;        
-            */
-
-            /*
-            Transform navigationRig = SuperController.singleton.navigationRig;            
-            Vector3 cameraDelta = CameraTarget.centerTarget.transform.position - navigationRig.transform.position - CameraTarget.centerTarget.transform.rotation * new Vector3(0, 0, 0);
-            Vector3 resultPosition = Dest.transform.position - cameraDelta + Dest.transform.rotation * new Vector3(0, 0, 0);
-            navigationRig.transform.position = resultPosition;
+            /* 
+                Alternate code, maybe check if this works: https://github.com/TacoVengeance/vam-rotator/blob/master/Rotator.cs           
             */
             
             SuperController.singleton.ResetNavigationRigPositionRotation();
 
-            Transform destTransform = Dest.mainController.control;            
-            Vector3 targetRotation = destTransform.eulerAngles;
+            Transform destTransform = destAtom.mainController.control;                        
             Vector3 targetPosition = destTransform.position;
             Transform rigTransform = SuperController.singleton.navigationRig.transform;
             Transform monitorCenterCameraTransform = SuperController.singleton.MonitorCenterCamera.transform;
 
-            rigTransform.eulerAngles = new Vector3(0, targetRotation.y, 0);
-            monitorCenterCameraTransform.eulerAngles = targetRotation;
+            rigTransform.eulerAngles = new Vector3(0, destTransform.eulerAngles.y, 0);
+            monitorCenterCameraTransform.eulerAngles = destTransform.eulerAngles;
             monitorCenterCameraTransform.localEulerAngles = new Vector3(monitorCenterCameraTransform.localEulerAngles.x, 0, 0);
             SuperController.singleton.playerHeightAdjust += targetPosition.y - SuperController.singleton.centerCameraTarget.transform.position.y;
             rigTransform.position = new Vector3(targetPosition.x, 0, targetPosition.z);

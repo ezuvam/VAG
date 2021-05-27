@@ -87,6 +87,7 @@
     <Compile Include="src/VAGTransition.cs" />    
     <Compile Include="src/VAGCharacter.cs" />
     <Compile Include="src/VAGActions.cs" />
+    <Compile Include="src/VAGItems.cs" />    
     <Compile Include="src/VAGChoices.cs" />
     <Compile Include="src/VAGDialog.cs" /> 
     <Compile Include="src/VAGLocations.cs" />   

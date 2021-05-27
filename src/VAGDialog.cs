@@ -15,12 +15,12 @@ namespace ezuvam.VAG {
         public string Character { get {return GetDataStr("Character"); } set { SetDataStr("Character", value); } }
         public float TextSpeedFactor { get {return GetDataFloat("TextSpeedFactor", 1); } set { SetDataFloat("TextSpeedFactor", value); } }      
          
-        public VAGChoicesCollection Choices;
+        public VAGDialogChoicesCollection Choices;
         public VAGActionsCollection Actions;
         public VAGDialogsCollection Dialogs;
 
         public VAGDialog(JSONClass initialData, VAGStore ownerStore) : base(initialData, "items", ownerStore) {
-            Choices = new VAGChoicesCollection(GetDataObject("Choices"), ownerStore);
+            Choices = new VAGDialogChoicesCollection(GetDataObject("Choices"), ownerStore);
             Actions = new VAGActionsCollection(GetDataObject("Actions"), ownerStore);     
             Dialogs = new VAGDialogsCollection(GetDataObject("Dialogs"), ownerStore);   
          }

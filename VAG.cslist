@@ -5,6 +5,7 @@ src/VAGTransition.cs
 src/VAGAtomSettings.cs
 src/VAGCharacter.cs
 src/VAGActions.cs
+src/VAGItems.cs
 src/VAGChoices.cs
 src/VAGDialog.cs
 src/VAGLocations.cs

@@ -46,17 +46,71 @@ namespace ezuvam.VAG
             return childs[index] as VAGChoice;
         }
 
-        public override void Start(VAGHandler Handler) { 
-            base.Start(Handler);           
+        public override void Start(VAGHandler handler)
+        {
+            base.Start(handler);
 
-            Handler.MainMenuUI.ChoicesUI.ActiveChoices = this;
-            Handler.MainMenuUI.btnChoicesUI.ShowPopUp();
+            (GetPopUpButton(handler).PopUpWnd as VAGChoicesUI).ActiveChoices = this;
+            GetPopUpButton(handler).ShowPopUp();
         }
 
-        public void ExecuteChoosen(VAGHandler handler, int choosenIndex)
+        public virtual void ExecuteChoosen(VAGHandler handler, int choosenIndex)
         {
-            handler.MainMenuUI.ChoicesUI.Visible = false;
+            GetPopUpButton(handler).PopUpWnd.Visible = false;
             ByIndex(choosenIndex).Actions.Execute(handler);
         }
+
+        public virtual VAMUIWindowPopUpButton GetPopUpButton(VAGHandler handler)
+        {
+            return null;
+        }
+    }
+
+    public class VAGDialogChoicesCollection : VAGChoicesCollection
+    {
+        public VAGDialogChoicesCollection(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore) { }
+
+        public override VAMUIWindowPopUpButton GetPopUpButton(VAGHandler handler)
+        {
+            return handler.MainMenuUI.btnChoicesUI;
+        }
+
+    }
+    public class VAGFloatingChoicesCollection : VAGChoicesCollection
+    {
+        string ButtonCaption { get; set; }
+        private VAMUIWindowPopUpButton _uiButton = null;
+        public VAGFloatingChoicesCollection(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore)
+        {
+        }
+
+        public VAMUIWindowPopUpButton UIButton
+        {
+            get
+            {
+                if (!Assigned(_uiButton))
+                {
+                    VAGChoicesUI choicesUI = new VAGChoicesUI(Store.Handler.OwnerPlugin);
+                    _uiButton = new VAMUIWindowPopUpButton(null, choicesUI, "btnChoicePopUpUI", ButtonCaption, 80, 40);
+
+                }
+                return _uiButton;
+            }
+        }
+
+        public VAGChoicesUI ChoicesUI {
+            get
+            {
+                {
+                    return UIButton.PopUpWnd as VAGChoicesUI;
+                }
+            }
+        }
+
+        public override VAMUIWindowPopUpButton GetPopUpButton(VAGHandler handler)
+        {
+            return UIButton;
+        }
+
     }
 }

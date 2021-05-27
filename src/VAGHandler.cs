@@ -9,16 +9,18 @@ namespace ezuvam.VAG
 {
     public class VAGStore : VAGCustomStorable
     {
+        public VAGHandler Handler { get; set;  }
         public int storeVersion { get { return GetDataInt("storeVersion"); } set { SetDataInt("storeVersion", value); } }
         public float TextSpeedFactor { get { return GetDataFloat("TextSpeedFactor", 0.2f); } set { SetDataFloat("TextSpeedFactor", value); } }
         public string InitialGameStatsFile { get { return GetDataStr("InitialGameStatsFile"); } set { SetDataStr("InitialGameStatsFile", value); } }
         public string InitialDialog { get { return GetDataStr("InitialDialog"); } set { SetDataStr("InitialDialog", value); } }
         public string InitialQuest { get { return GetDataStr("InitialQuest"); } set { SetDataStr("InitialQuest", value); } }
-        
+
         private readonly int _currentStoreVersion = 1;
         public VAGQuestsCollection Quests;
         public VAMACharacterCollection Characters;
         public VAGDialogsCollection Dialogs;
+        public VAGItemCollection Items;
         public VAGQuestLocationsCollection Locations;
         public VAGTransitionsCollection Transitions;
         public readonly VAGGameStates GameStates = new VAGGameStates(null);
@@ -31,6 +33,7 @@ namespace ezuvam.VAG
             Quests.Clear();
             Characters.Clear();
             Dialogs.Clear();
+            Items.Clear();
             Locations.Clear();
             Transitions.Clear();
 
@@ -41,6 +44,7 @@ namespace ezuvam.VAG
             Quests = new VAGQuestsCollection(GetDataObject("Quests"), this);
             Characters = new VAMACharacterCollection(GetDataObject("Characters"), this);
             Dialogs = new VAGDialogsCollection(GetDataObject("Dialogs"), this);
+            Items = new VAGItemCollection(GetDataObject("Items"), this);
             Locations = new VAGQuestLocationsCollection(GetDataObject("Locations"), this);
             Transitions = new VAGTransitionsCollection(GetDataObject("Transitions"), this);
         }
@@ -51,21 +55,22 @@ namespace ezuvam.VAG
             Quests.LoadFromJSON(GetDataObject("Quests"));
             Characters.LoadFromJSON(GetDataObject("Characters"));
             Dialogs.LoadFromJSON(GetDataObject("Dialogs"));
+            Items.LoadFromJSON(GetDataObject("Items"));
             Locations.LoadFromJSON(GetDataObject("Locations"));
             Transitions.LoadFromJSON(GetDataObject("Transitions"));
 
             GameStates.ResetToNew();
         }
 
-        public void GameStateChanged(VAGHandler Handler)
+        public void GameStateChanged()
         {
             Quests.GameStateChanged(Handler);
             Characters.GameStateChanged(Handler);
             Dialogs.GameStateChanged(Handler);
+            Items.GameStateChanged(Handler);
             Locations.GameStateChanged(Handler);
             Transitions.GameStateChanged(Handler);
         }
-
     }
 
     public class VAGGameStates : VAGCustomStorable
@@ -184,16 +189,24 @@ namespace ezuvam.VAG
         public VAGHandler(VAGPlugin ownerPlugin)
         {
             OwnerPlugin = ownerPlugin;
+            Store.Handler = this;
 
             MainMenuUI = new VAMMainMenuDialogUI(OwnerPlugin);
             _uilist.Add(MainMenuUI);
-
         }
 
+        public void RegisterUI(VAMCustomUIWnd wndUI)
+        {
+            _uilist.Add(wndUI);
+        }
+        public void UnRegisterUI(VAMCustomUIWnd wndUI)
+        {
+            _uilist.Remove(wndUI);
+        }        
         public void LoadGameStatsFromFile(string fileName)
         {
             Store.GameStates.LoadFromJSON(JSON.Parse(SuperController.singleton.ReadFileIntoString(fileName)).AsObject);
-            Store.GameStateChanged(this);
+            Store.GameStateChanged();
         }
         public void SaveGameStatsToFile(string fileName)
         {
@@ -244,7 +257,7 @@ namespace ezuvam.VAG
 
                     }
 
-                    Store.GameStateChanged(this);
+                    Store.GameStateChanged();
 
                     if (!string.IsNullOrEmpty(Store.InitialQuest))
                     {
@@ -336,6 +349,18 @@ namespace ezuvam.VAG
             }
         }
 
+        public void ActivateItem(string Name)
+        {
+            VAGItem Item = Store.Items.ByName(Name);
+            if (Assigned(Item))
+            {
+                PlayObject(Item);
+            }
+            else
+            {
+                SuperController.LogError($"Item with name {Name} not found!");
+            }
+        }
         public void PlayDialog(VAGDialog Dialog)
         {
             StopPlayObject(Dialog);
@@ -357,7 +382,7 @@ namespace ezuvam.VAG
         public void StartQuest(VAGQuest Quest)
         {
             PlayObject(Quest);
-        }        
+        }
         public void StartQuest(string Name)
         {
             VAGQuest Quest = Store.Quests.ByName(Name);
@@ -370,7 +395,7 @@ namespace ezuvam.VAG
                 SuperController.LogError($"Quest with name {Name} not found!");
             }
         }
-        
+
 
         public void ChangePlace(string Name, bool allowSceneChange = true)
         {

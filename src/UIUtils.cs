@@ -105,7 +105,10 @@ namespace ezuvam.VAG
 
                 UpdatePosition(_elementTransform);
 
-                _elementTransform.SetParent(OwnerWnd.ContentContainer.transform, false);
+                if (OwnerWnd != null)
+                {
+                    _elementTransform.SetParent(OwnerWnd.ContentContainer.transform, false);
+                }
             }
         }
         protected void UpdatePosition(Transform t)
@@ -132,7 +135,15 @@ namespace ezuvam.VAG
                 }
             }
         }
-
+        public void SetParentTransform(Transform parent)
+        {
+            UpdatePosition(ElementTransform);
+            ElementTransform.SetParent(parent, false);            
+        }
+        public void LookAtPlayer()
+        {
+            ElementTransform.LookAt(SuperController.singleton.navigationRig.transform);
+        }
         public override void OnDestroy()
         {
             if (ElementTransform.gameObject != null) GameObject.Destroy(ElementTransform.gameObject);
