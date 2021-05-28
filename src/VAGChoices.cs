@@ -11,19 +11,43 @@ namespace ezuvam.VAG
         public string Name { get { return GetDataStr("Name"); } set { SetDataStr("Name", value); } }
         public string ButtonText { get { return GetDataStr("ButtonText"); } set { SetDataStr("ButtonText", value); } }
         public VAGActionsCollection Actions;
+        public VAGDialogsCollection Dialogs;
         public VAGChoice(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore)
         {
             Actions = new VAGActionsCollection(GetDataObject("Actions"), ownerStore);
+            Dialogs = new VAGDialogsCollection(GetDataObject("Dialogs"), ownerStore);
         }
         public override void LoadFromJSON(JSONClass jsonData)
         {
             base.LoadFromJSON(jsonData);
             Actions.LoadFromJSON(GetDataObject("Actions"));
+            Dialogs.LoadFromJSON(GetDataObject("Dialogs"));
         }
         public override void Clear()
         {
-            base.Clear();
             Actions.Clear();
+            Dialogs.Clear();
+            base.Clear();
+        }
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            Actions.BindToScene(Handler);
+            Dialogs.BindToScene(Handler);
+        }
+
+        public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            base.AddToDict(Dict, AttrName);
+            Actions.AddToDict(Dict, AttrName);
+            Dialogs.AddToDict(Dict, AttrName);
+        }
+
+        public override void Start(VAGHandler Handler)
+        {
+            base.Start(Handler);
+            if (Actions.Count > 0) { Handler.PlayObject(Actions); }
+            if (Dialogs.Count > 0) { Handler.PlayObject(Dialogs); }
         }
 
     }
@@ -57,7 +81,8 @@ namespace ezuvam.VAG
         public virtual void ExecuteChoosen(VAGHandler handler, int choosenIndex)
         {
             GetPopUpButton(handler).PopUpWnd.Visible = false;
-            ByIndex(choosenIndex).Actions.Execute(handler);
+
+            handler.PlayObject(ByIndex(choosenIndex));
         }
 
         public virtual VAMUIWindowPopUpButton GetPopUpButton(VAGHandler handler)
@@ -98,7 +123,8 @@ namespace ezuvam.VAG
             }
         }
 
-        public VAGChoicesUI ChoicesUI {
+        public VAGChoicesUI ChoicesUI
+        {
             get
             {
                 {

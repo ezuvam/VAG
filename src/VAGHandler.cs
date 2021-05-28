@@ -9,7 +9,7 @@ namespace ezuvam.VAG
 {
     public class VAGStore : VAGCustomStorable
     {
-        public VAGHandler Handler { get; set;  }
+        public VAGHandler Handler { get; set; }
         public int storeVersion { get { return GetDataInt("storeVersion"); } set { SetDataInt("storeVersion", value); } }
         public float TextSpeedFactor { get { return GetDataFloat("TextSpeedFactor", 0.2f); } set { SetDataFloat("TextSpeedFactor", value); } }
         public string InitialGameStatsFile { get { return GetDataStr("InitialGameStatsFile"); } set { SetDataStr("InitialGameStatsFile", value); } }
@@ -27,15 +27,15 @@ namespace ezuvam.VAG
 
         public override void Clear()
         {
-            base.Clear();
-            storeVersion = _currentStoreVersion;
-
             Quests.Clear();
             Characters.Clear();
             Dialogs.Clear();
             Items.Clear();
             Locations.Clear();
             Transitions.Clear();
+            base.Clear();
+
+            storeVersion = _currentStoreVersion;
 
             LoadFromJSON(_data);
         }
@@ -70,6 +70,17 @@ namespace ezuvam.VAG
             Items.GameStateChanged(Handler);
             Locations.GameStateChanged(Handler);
             Transitions.GameStateChanged(Handler);
+        }
+
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            Quests.BindToScene(Handler);
+            Characters.BindToScene(Handler);
+            Dialogs.BindToScene(Handler);
+            Items.BindToScene(Handler);
+            Locations.BindToScene(Handler);
+            Transitions.BindToScene(Handler);
         }
     }
 
@@ -138,6 +149,7 @@ namespace ezuvam.VAG
             {
                 _transition.OnPlayingFinish += new VAGObjEventHandler(doOnPlayingObjectFinish);
                 _transition.Active = true;
+
                 Handler.PlayObject(_transition);
             }
             else
@@ -183,7 +195,20 @@ namespace ezuvam.VAG
         public readonly VAMMainMenuDialogUI MainMenuUI;
         private readonly List<VAMCustomUIWnd> _uilist = new List<VAMCustomUIWnd>();
         public string ActiveGameFileName { get; set; }
-        public bool Active { get; set; }
+        private bool _active = false;
+        public bool Active
+        {
+            get { return _active; }
+            set
+            {
+                _active = value;
+
+                if (_active)
+                {
+                    Store.BindToScene(this);
+                }
+            }
+        }
         public VAGTransition ActiveTransition { get; set; }
 
         public VAGHandler(VAGPlugin ownerPlugin)
@@ -202,7 +227,7 @@ namespace ezuvam.VAG
         public void UnRegisterUI(VAMCustomUIWnd wndUI)
         {
             _uilist.Remove(wndUI);
-        }        
+        }
         public void LoadGameStatsFromFile(string fileName)
         {
             Store.GameStates.LoadFromJSON(JSON.Parse(SuperController.singleton.ReadFileIntoString(fileName)).AsObject);
@@ -239,6 +264,11 @@ namespace ezuvam.VAG
                 Store.LoadFromJSON(JSON.Parse(SuperController.singleton.ReadFileIntoString(fileName)).AsObject);
                 ActiveGameFileName = fileName;
                 Store.Changed();
+
+                if (Active)
+                {
+                    Store.BindToScene(this);
+                }
 
                 if (!string.IsNullOrEmpty(Store.InitialGameStatsFile) & FileManagerSecure.FileExists(Store.InitialGameStatsFile))
                 {
@@ -295,6 +325,18 @@ namespace ezuvam.VAG
         public void Reset()
         {
             _playingObjects.Clear();
+        }
+
+        public void StopAllDialogs()
+        {
+            for (int i = _playingObjects.Count - 1; i >= 0; i--)
+            {
+                if (_playingObjects[i] is VAGDialog)
+                {
+                    _playingObjects[i].Stop(this);
+                    _playingObjects.Remove(_playingObjects[i]);
+                }
+            }
         }
 
         public void StopPlayObject(VAGObject QuestObj)
@@ -364,7 +406,14 @@ namespace ezuvam.VAG
         public void PlayDialog(VAGDialog Dialog)
         {
             StopPlayObject(Dialog);
-            PlayObject(Dialog);
+
+            float startDelay = 0;
+
+            if (Assigned(ActiveTransition))
+            {
+                startDelay = ActiveTransition.Delay;
+            }
+            PlayObject(Dialog, startDelay);
         }
 
         public void PlayDialog(string Name)

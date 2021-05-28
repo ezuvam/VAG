@@ -32,7 +32,7 @@ namespace ezuvam.VAG
         {
             base.Start(Handler);
 
-            SuperController.LogMessage($"Changing place to {Name}"); 
+            SuperController.LogMessage($"Changing place to {Name}");
 
             Handler.Store.GameStates.activePlace = Name;
 
@@ -55,7 +55,7 @@ namespace ezuvam.VAG
                                 VAGAtomSetting otherPlacesAtomsSetting = otherPlacesAtoms.Add(atomSetting.AtomName);
                                 otherPlacesAtomsSetting.AtomName = atomSetting.AtomName;
                                 otherPlacesAtomsSetting.OnEnabled = true;
-                                otherPlacesAtomsSetting.On = false;                                
+                                otherPlacesAtomsSetting.On = false;
                             }
                         }
                     }
@@ -123,7 +123,20 @@ namespace ezuvam.VAG
             Handler.PlayObject(BeforeLoadActions);
             Handler.Store.GameStates.activeLocation = Name;
         }
-
+        public override void Clear()
+        {            
+            BeforeLoadActions.Clear();
+            AfterLoadActions.Clear();
+            Places.Clear();
+            base.Clear();
+        }
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            BeforeLoadActions.BindToScene(Handler);
+            AfterLoadActions.BindToScene(Handler);
+            Places.BindToScene(Handler);
+        }
         public void AfterLoad(VAGHandler Handler)
         {
             Handler.PlayObject(AfterLoadActions);

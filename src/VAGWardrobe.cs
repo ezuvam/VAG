@@ -12,7 +12,7 @@ namespace ezuvam.VAG
         public string PresetFile { get { return GetDataStr("PresetFile"); } set { SetDataStr("PresetFile", value); } }
         public VAGActionsCollection StartActions;
         public VAGActionsCollection EndActions;
-         public VAGWardrobe(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore) 
+        public VAGWardrobe(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore)
         {
             StartActions = new VAGActionsCollection(GetDataObject("StartActions"), ownerStore);
             EndActions = new VAGActionsCollection(GetDataObject("EndActions"), ownerStore);
@@ -25,10 +25,16 @@ namespace ezuvam.VAG
         }
         public override void Clear()
         {
-            base.Clear();
             StartActions.Clear();
             EndActions.Clear();
-        }               
+            base.Clear();
+        }
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            StartActions.BindToScene(Handler);
+            EndActions.BindToScene(Handler);
+        }
 
         public void ApplyToPerson(Atom personAtom)
         {

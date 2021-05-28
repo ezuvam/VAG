@@ -22,9 +22,14 @@ namespace ezuvam.VAG
             Quests.LoadFromJSON(GetDataObject("Quests"));
         }
         public override void Clear()
-        {
-            base.Clear();
+        {            
             Quests.Clear();
+            base.Clear();
+        }
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            Quests.BindToScene(Handler);
         }
         public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
         {
@@ -53,7 +58,7 @@ namespace ezuvam.VAG
         public new VAGQuest ByName(string Name)
         {
             return base.ByName(Name) as VAGQuest;
-        }        
+        }
 
         public VAGQuest ByIndex(int index)
         {

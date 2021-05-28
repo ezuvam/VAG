@@ -11,6 +11,7 @@ namespace ezuvam.VAG
         public string Name { get { return GetDataStr("Name"); } set { SetDataStr("Name", value); } }
         public string Description { get { return GetDataStr("Description"); } set { SetDataStr("Description", value); } }
         public float Delay { get { return GetDataFloat("Delay"); } set { SetDataFloat("Delay", value); } }
+        public bool StopAllDialogs { get { return GetDataBool("StopAllDialogs", true); } set { SetDataBool("StopAllDialogs", value); } }
         public bool Active { get; set; }
         public VAGAtomSettingsCollection Atoms;
         private VAGAtomSettingsCollection _atombackup = null;
@@ -24,7 +25,16 @@ namespace ezuvam.VAG
             base.LoadFromJSON(jsonData);
             Atoms.LoadFromJSON(GetDataObject("Atoms"));
         }
-
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            Atoms.BindToScene(Handler);
+        }
+        public override void Clear()
+        {
+            Atoms.Clear();
+            base.Clear();
+        }
         public override void Start(VAGHandler Handler)
         {
             base.Start(Handler);
@@ -47,9 +57,14 @@ namespace ezuvam.VAG
 
         public void ExecuteStart(VAGHandler Handler)
         {
+            if (StopAllDialogs)
+            {
+                Handler.StopAllDialogs();
+            }
+
             if (!Assigned(_atombackup))
             {
-                SuperController.LogMessage($"AtomBackup already existing!");
+                SuperController.LogMessage($"AtomBackup already existing on transistion start!");
                 _atombackup = null;
             }
 

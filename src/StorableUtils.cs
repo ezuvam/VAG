@@ -18,6 +18,7 @@ namespace ezuvam.VAG
         public virtual void Start(VAGHandler Handler)
         {
             States.TimeToRun = 0;
+            States.Stopped = false;
             States.Running = true;
         }
 
@@ -25,6 +26,7 @@ namespace ezuvam.VAG
         {
             States.TimeToRun = 0;
             States.Running = false;
+            States.Stopped = true;
         }
 
         public virtual void Finish(VAGHandler Handler)
@@ -90,7 +92,14 @@ namespace ezuvam.VAG
         {
             if (_data.AsObject.HasKey(key))
             {
-                return _data[key].AsInt;
+                if (string.IsNullOrEmpty(_data[key].Value))
+                {
+                    return defval;
+                }
+                else
+                {
+                    return _data[key].AsInt;
+                }
             }
             else
             {
@@ -106,7 +115,14 @@ namespace ezuvam.VAG
         {
             if (_data.AsObject.HasKey(key))
             {
-                return _data[key].AsBool;
+                if (string.IsNullOrEmpty(_data[key].Value))
+                {
+                    return defval;
+                }
+                else
+                {
+                    return _data[key].AsBool;
+                }
             }
             else
             {
@@ -122,7 +138,14 @@ namespace ezuvam.VAG
         {
             if (_data.AsObject.HasKey(key))
             {
-                return _data[key].AsFloat;
+                if (string.IsNullOrEmpty(_data[key].Value))
+                {
+                    return defval;
+                }
+                else
+                {
+                    return _data[key].AsFloat;
+                }
             }
             else
             {
@@ -159,11 +182,23 @@ namespace ezuvam.VAG
 
         public virtual void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
         {
-            if (_data.HasKey(AttrName))
+            if (Assigned(_data))
             {
-                if (!GetDataStr(AttrName).Equals(""))
+                if (_data.HasKey(AttrName))
                 {
-                    Dict.Add(GetDataStr(AttrName), this);
+                    string key = GetDataStr(AttrName);
+
+                    if (!string.IsNullOrEmpty(key))
+                    {
+                        if (!Dict.ContainsKey(key))
+                        {
+                            Dict.Add(key, this);
+                        }
+                        else
+                        {
+                            SuperController.LogError($"VAGItem with attribut {AttrName} value {key} already exists");
+                        }
+                    }
                 }
             }
         }
@@ -213,6 +248,10 @@ namespace ezuvam.VAG
 
             LoadFromJSON(_data);
         }
+        public virtual void BindToScene(VAGHandler Handler)
+        {
+
+        }
 
     }
 
@@ -237,37 +276,38 @@ namespace ezuvam.VAG
         public virtual void GameStateChanged(VAGHandler Handler)
         {
 
-        }        
-		public static JSONStorable FindStorableByNameFlex(Atom atom, string storableClassName)
-		{
-			List<string> names = atom.GetStorableIDs();	
+        }
 
-			string jsName = names.Find(s => s.Contains(storableClassName));
-			if (!string.IsNullOrEmpty(jsName))
-			{
-				return atom.GetStorableByID(jsName);
-			}
-			else
-			{
-				return null;
-			}
-		}
-		public static JSONStorable FindPlugin(Atom atom, string pluginClassName)
-		{
-			List<string> names = atom.GetStorableIDs();	
+        public static JSONStorable FindStorableByNameFlex(Atom atom, string storableClassName)
+        {
+            List<string> names = atom.GetStorableIDs();
 
-			string pluginName = names.Find(s => s.StartsWith("plugin#") && s.Contains(pluginClassName));
-			if (!string.IsNullOrEmpty(pluginName))
-			{
-				return atom.GetStorableByID(pluginName);
-			}
-			else
-			{
-				return null;
-			}
-		}        
-		public static void CallPluginMethod(Atom atom, string pluginClassName, string methodeName, object parameter)
-		{
+            string jsName = names.Find(s => s.Contains(storableClassName));
+            if (!string.IsNullOrEmpty(jsName))
+            {
+                return atom.GetStorableByID(jsName);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static JSONStorable FindPlugin(Atom atom, string pluginClassName)
+        {
+            List<string> names = atom.GetStorableIDs();
+
+            string pluginName = names.Find(s => s.StartsWith("plugin#") && s.Contains(pluginClassName));
+            if (!string.IsNullOrEmpty(pluginName))
+            {
+                return atom.GetStorableByID(pluginName);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static void CallPluginMethod(Atom atom, string pluginClassName, string methodeName, object parameter)
+        {
             JSONStorable plugin = FindPlugin(atom, pluginClassName);
 
             if (plugin != null)
@@ -277,9 +317,9 @@ namespace ezuvam.VAG
             else
             {
                 SuperController.LogError($"Plugin {pluginClassName} not found on atom {atom.name}!");
-            }            
+            }
 
-		}  
+        }
 
     }
 
@@ -350,8 +390,14 @@ namespace ezuvam.VAG
 
         public override void Clear()
         {
-            base.Clear();
+            for (int i = 0; i < childs.Count; i++)
+            {
+                childs[i].Clear();
+            }
             childs.Clear();
+
+            base.Clear();
+
             NameDict = null;
         }
         public override void LoadFromJSON(JSONClass jsonData)
@@ -405,6 +451,15 @@ namespace ezuvam.VAG
             for (int i = 0; i < childs.Count; i++)
             {
                 childs[i].GameStateChanged(Handler);
+            }
+        }
+
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            for (int i = 0; i < childs.Count; i++)
+            {
+                childs[i].BindToScene(Handler);
             }
         }
 

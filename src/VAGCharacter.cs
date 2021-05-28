@@ -52,14 +52,19 @@ namespace ezuvam.VAG
             Moods.LoadFromJSON(GetDataObject("Moods"));
         }
         public override void Clear()
-        {
-            base.Clear();            
+        {                      
             _activeWardrobe = null;
             _activeMood = null;
             Wardrobe.Clear();
             Moods.Clear();
+            base.Clear();  
         }
-
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            Wardrobe.BindToScene(Handler);
+            Moods.BindToScene(Handler);
+        }
         public void SpeakSpeechBubble(VAGHandler Handler, string bubbletext, bool isThought, float speaktime)
         {
             if (Assigned(PersonAtom))
@@ -76,7 +81,7 @@ namespace ezuvam.VAG
 
                 if (Assigned(bubble))
                 {
-                    //SuperController.LogMessage($"Person {Name} with AtomName {AtomName} speak {bubbletext}"); 
+                    //SuperController.LogMessage($"Person {FullName} with AtomName {AtomName} speak {bubbletext} for time {speaktime}"); 
                     bubble.UpdateText(bubbletext, speaktime);
                 }
             }

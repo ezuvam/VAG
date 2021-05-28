@@ -29,10 +29,16 @@ namespace ezuvam.VAG
             EndActions.LoadFromJSON(GetDataObject("EndActions"));
         }
         public override void Clear()
-        {
-            base.Clear();
+        {            
             StartActions.Clear();
             EndActions.Clear();
+            base.Clear();
+        }
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            StartActions.BindToScene(Handler);
+            EndActions.BindToScene(Handler);
         }
         public void ApplyToPerson(Atom personAtom)
         {

@@ -57,6 +57,11 @@ namespace ezuvam.VAG
                             break;
                         }
 
+                    case "stopalldialogs":
+                        {
+                            Handler.StopAllDialogs();
+                            break;
+                        }
 
                     case "playercamera":
                         {

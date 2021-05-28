@@ -17,6 +17,7 @@ namespace ezuvam.VAG
         public VAGActionsCollection GrabActions;
         public VAGActionsCollection DropActions;
         private readonly VAGItemCollection _collection;
+        private bool _isGrabbed = false;
         public VAGItem(JSONClass initialData, VAGStore ownerStore, VAGItemCollection collection) : base(initialData, ownerStore)
         {
             _collection = collection;
@@ -33,10 +34,17 @@ namespace ezuvam.VAG
         }
         public override void Clear()
         {
-            base.Clear();
+            Atom atom = SuperController.singleton.GetAtomByUid(AtomName);
+
+            if (Assigned(atom))
+            {
+                atom.mainController.onGrabStartHandlers -= DoOnAtomGrabStart;
+            }
+
             Choices.Clear();
             GrabActions.Clear();
             DropActions.Clear();
+            base.Clear();
         }
         public override void Start(VAGHandler handler)
         {
@@ -48,13 +56,42 @@ namespace ezuvam.VAG
             {
                 Choices.ChoicesUI.ActiveChoices = Choices;
                 Choices.UIButton.SetParentTransform(atom.mainController.transform);
-                Choices.UIButton.LookAtPlayer();                
+                Choices.UIButton.LookAtPlayer();
             }
             else
             {
                 SuperController.LogError($"VAGItem {Name}: Atom with name {AtomName} not found!");
             }
         }
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            Choices.BindToScene(Handler);
+            GrabActions.BindToScene(Handler);
+            DropActions.BindToScene(Handler);
+
+            Atom atom = SuperController.singleton.GetAtomByUid(AtomName);
+
+            if (Assigned(atom))
+            {
+                atom.mainController.onGrabStartHandlers += DoOnAtomGrabStart;
+            }
+        }
+
+        public void DoGrabItem()
+        {
+            if (!_isGrabbed)
+            {
+                _isGrabbed = true;
+                Store.Handler.PlayObject(GrabActions);                
+            }     
+        }
+        public void DoOnAtomGrabStart(FreeControllerV3 fcv3)
+        {
+            DoGrabItem();
+            //SuperController.LogMessage($"VAGItem {Name}: Atom with name {AtomName} grabbed");     
+        }
+
     }
 
     public class VAGItemCollection : VAGCustomStorableCollection

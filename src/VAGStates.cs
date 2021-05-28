@@ -11,6 +11,7 @@ namespace ezuvam.VAG {
        public float TimeToRun = 0;
         public float StartDelay = 0;
         public bool Running = false;
+        public bool Stopped = false;
 
    }
 
