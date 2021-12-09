@@ -10,23 +10,29 @@ namespace ezuvam.VAG
     {
         public string Name { get { return GetDataStr("Name"); } set { SetDataStr("Name", value); } }
         public string ButtonText { get { return GetDataStr("ButtonText"); } set { SetDataStr("ButtonText", value); } }
+        public string DisabledButtonText { get { return GetDataStr("DisabledButtonText"); } set { SetDataStr("DisabledButtonText", value); } }
+        
         public VAGActionsCollection Actions;
         public VAGDialogsCollection Dialogs;
+        public VAGConditionCollection Conditions;
         public VAGChoice(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore)
         {
             Actions = new VAGActionsCollection(GetDataObject("Actions"), ownerStore);
             Dialogs = new VAGDialogsCollection(GetDataObject("Dialogs"), ownerStore);
+            Conditions = new VAGConditionCollection(GetDataObject("Conditions"), ownerStore);
         }
         public override void LoadFromJSON(JSONClass jsonData)
         {
             base.LoadFromJSON(jsonData);
             Actions.LoadFromJSON(GetDataObject("Actions"));
             Dialogs.LoadFromJSON(GetDataObject("Dialogs"));
+            Conditions.LoadFromJSON(GetDataObject("Conditions"));
         }
         public override void Clear()
         {
             Actions.Clear();
             Dialogs.Clear();
+            Conditions.Clear();
             base.Clear();
         }
         public override void BindToScene(VAGHandler Handler)
@@ -34,6 +40,7 @@ namespace ezuvam.VAG
             base.BindToScene(Handler);
             Actions.BindToScene(Handler);
             Dialogs.BindToScene(Handler);
+            Conditions.BindToScene(Handler);
         }
 
         public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
@@ -41,6 +48,7 @@ namespace ezuvam.VAG
             base.AddToDict(Dict, AttrName);
             Actions.AddToDict(Dict, AttrName);
             Dialogs.AddToDict(Dict, AttrName);
+            Conditions.AddToDict(Dict, AttrName);
         }
 
         public override void Start(VAGHandler Handler)

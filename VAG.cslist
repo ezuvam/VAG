@@ -1,5 +1,6 @@
 src/StorableUtils.cs
 src/UIUtils.cs
+scr/VAGConditions.cs
 src/VAGStates.cs
 src/VAGTransition.cs
 src/VAGAtomSettings.cs

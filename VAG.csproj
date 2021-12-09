@@ -83,6 +83,7 @@
     <Compile Include="src/StorableUtils.cs" />
     <Compile Include="src/VAGUI.cs" />
     <Compile Include="src/VAGStates.cs" />
+    <Compile Include="src/VAGConditions.cs" />    
     <Compile Include="src/VAGAtomSettings.cs" />
     <Compile Include="src/VAGTransition.cs" />    
     <Compile Include="src/VAGCharacter.cs" />

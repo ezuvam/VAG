@@ -45,11 +45,14 @@ namespace ezuvam.VAG
         {
             if (ActiveChoices != null)
             {
-                if (OnChoiceSelected != null)
+                if (ActiveChoices.ByIndex(choiceIndex).Conditions.Evaluate())
                 {
-                    OnChoiceSelected(this, choiceIndex);
+                    if (OnChoiceSelected != null)
+                    {
+                        OnChoiceSelected(this, choiceIndex);
+                    }
+                    ActiveChoices.ExecuteChoosen((OwnerPlugin as VAGPlugin).QuestHandler, choiceIndex);
                 }
-                ActiveChoices.ExecuteChoosen((OwnerPlugin as VAGPlugin).QuestHandler, choiceIndex);
             }
         }
         protected VAGUIChoiceButton CreateButton()
@@ -73,12 +76,34 @@ namespace ezuvam.VAG
             BeginUpdate();
             try
             {
+                int ButtonIndex = 0;
+
                 for (int i = 0; i < choices.Count; i++)
                 {
-                    if (i >= ButtonList.Count) { btn = CreateButton(); } else { btn = ButtonList[i]; }
-                    btn.button.buttonText.text = choices.ByIndex(i).ButtonText;
-                    btn.ChoiceIndex = i;
-                    btn.Visible = true;
+                    VAGChoice Choice = choices.ByIndex(i);
+                    string BtnText;
+                    bool ShowButton;
+
+                    if (Choice.Conditions.Evaluate())
+                    {
+                        BtnText = Choice.ButtonText;
+                        ShowButton = true;
+                    }
+                    else
+                    {
+                        BtnText = Choice.DisabledButtonText;                         
+                        ShowButton = (!BtnText.Equals(""));
+                    }
+
+                    if (ShowButton)
+                    {
+                        if (ButtonIndex >= ButtonList.Count) { btn = CreateButton(); } else { btn = ButtonList[ButtonIndex]; }
+                        ButtonIndex++;
+
+                        btn.button.buttonText.text = BtnText;
+                        btn.ChoiceIndex = i;
+                        btn.Visible = true;
+                    }
                 }
 
                 for (int i = choices.Count; i < ButtonList.Count; i++)

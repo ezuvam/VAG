@@ -502,6 +502,15 @@ namespace ezuvam.VAG
             }
         }
 
+        public void UpdateVariable(string VarName, string VarValue)
+        {
+           // TODO
+        }
+
+        public string GetVariableValue(string VarName)
+        {
+            return VarName; // TODO
+        }
         public void Update()
         {
             //if (!SuperController.singleton.freezeAnimation & Active)

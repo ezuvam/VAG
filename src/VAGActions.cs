@@ -57,6 +57,12 @@ namespace ezuvam.VAG
                             break;
                         }
 
+                    case "variable":
+                        {
+                            Handler.UpdateVariable(ActionParam, ActionParamValue);
+                            break;
+                        }                        
+
                     case "stopalldialogs":
                         {
                             Handler.StopAllDialogs();

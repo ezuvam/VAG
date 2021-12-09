@@ -14,7 +14,8 @@ namespace ezuvam.VAG
         public string DialogText { get { return GetDataStr("DialogText"); } set { SetDataStr("DialogText", value); } }
         public string TextMode { get { return GetDataStr("TextMode"); } set { SetDataStr("TextMode", value); } }
         public string Character { get { return GetDataStr("Character"); } set { SetDataStr("Character", value); } }
-        public float TextSpeedFactor { get { return GetDataFloat("TextSpeedFactor", 1); } set { SetDataFloat("TextSpeedFactor", value); } }
+        public float TextSpeedFactor { get { return GetDataFloat("TextSpeedFactor", 1); } set { SetDataFloat("TextSpeedFactor", value); } }        
+        public string AutoPlay { get { return GetDataStr("AutoPlay"); } set { SetDataStr("AutoPlay", value); } }
 
         public VAGDialogChoicesCollection Choices;
         public VAGActionsCollection Actions;
@@ -82,7 +83,7 @@ namespace ezuvam.VAG
 
             if (!States.Stopped)
             {
-                if (Actions.Count > 0) { Handler.PlayObject(Actions); }
+                if (Actions.Count > 0) { Handler.PlayObject(Actions); }                
                 if (Dialogs.Count > 0) { Handler.PlayObject(Dialogs); }
             }
         }
@@ -117,7 +118,12 @@ namespace ezuvam.VAG
 
             for (int i = 0; i < Count; i++)
             {
-                Handler.PlayDialog(ByIndex(i));
+                VAGDialog Dialog = ByIndex(i);
+
+                if (Dialog.AutoPlay.Equals("1") || (Dialog.AutoPlay.Equals("") && (i == 0)) )
+                {
+                    Handler.PlayDialog(Dialog);
+                }
             }
         }
     }
