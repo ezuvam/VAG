@@ -24,7 +24,33 @@ namespace ezuvam.VAG
         public float OffsetZ { get { return GetDataFloat("OffsetZ"); } set { SetDataFloat("OffsetZ", value); } }
         public float StartDelay { get { return GetDataFloat("StartDelay"); } set { SetDataFloat("StartDelay", value); } }
 
-        public VAGAction(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore) { }
+        public VAGConditionCollection Conditions;
+
+        public VAGAction(JSONClass initialData, VAGStore ownerStore) : base(initialData, ownerStore)
+        {
+            Conditions = new VAGConditionCollection(GetDataObject("Conditions"), ownerStore);
+        }
+        public override void LoadFromJSON(JSONClass jsonData)
+        {
+            base.LoadFromJSON(jsonData);
+            Conditions.LoadFromJSON(GetDataObject("Conditions"));
+        }
+        public override void Clear()
+        {
+            Conditions.Clear();
+            base.Clear();
+        }
+        public override void BindToScene(VAGHandler Handler)
+        {
+            base.BindToScene(Handler);
+            Conditions.BindToScene(Handler);
+        }
+
+        public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            base.AddToDict(Dict, AttrName);
+            Conditions.AddToDict(Dict, AttrName);
+        }
 
         public void Execute(VAGHandler Handler)
         {
@@ -61,7 +87,7 @@ namespace ezuvam.VAG
                         {
                             Handler.UpdateVariable(ActionParam, ActionParamValue);
                             break;
-                        }                        
+                        }
 
                     case "stopalldialogs":
                         {
@@ -71,7 +97,7 @@ namespace ezuvam.VAG
 
                     case "playercamera":
                         {
-                            Atom atom = GetTargetAtom();                            
+                            Atom atom = GetTargetAtom();
 
                             if (atom != null)
                             {
@@ -287,10 +313,10 @@ namespace ezuvam.VAG
             /* 
                 Alternate code, maybe check if this works: https://github.com/TacoVengeance/vam-rotator/blob/master/Rotator.cs           
             */
-            
+
             SuperController.singleton.ResetNavigationRigPositionRotation();
 
-            Transform destTransform = destAtom.mainController.control;                        
+            Transform destTransform = destAtom.mainController.control;
             Vector3 targetPosition = destTransform.position;
             Transform rigTransform = SuperController.singleton.navigationRig.transform;
             Transform monitorCenterCameraTransform = SuperController.singleton.MonitorCenterCamera.transform;
@@ -322,9 +348,12 @@ namespace ezuvam.VAG
         }
         public override void Start(VAGHandler Handler)
         {
-            base.Start(Handler);
-            Execute(Handler);
-            Handler.StopPlayObject(this);
+            if (Conditions.Evaluate())
+            {
+                base.Start(Handler);
+                Execute(Handler);
+                Handler.StopPlayObject(this);
+            }
         }
 
     }

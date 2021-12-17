@@ -12,23 +12,88 @@ namespace ezuvam.VAG
         public string ConditionType { get { return GetDataStr("ConditionType"); } set { SetDataStr("ConditionType", value); } }
         public string LeftValue { get { return GetDataStr("LeftValue"); } set { SetDataStr("LeftValue", value); } }
         public string RightValue { get { return GetDataStr("RightValue"); } set { SetDataStr("RightValue", value); } }
+        public string ChainType { get { return GetDataStr("ChainType"); } set { SetDataStr("ChainType", value); } }
 
-        private readonly VAGConditionCollection _collection;
+        public VAGConditionCollection Conditions;       
         public VAGCondition(JSONClass initialData, VAGStore ownerStore, VAGConditionCollection collection) : base(initialData, ownerStore)
-        {
-            _collection = collection;
+        {            
+            Conditions = new VAGConditionCollection(GetDataObject("Conditions"), ownerStore);
         }
         public override void LoadFromJSON(JSONClass jsonData)
         {
             base.LoadFromJSON(jsonData);
+            Conditions.LoadFromJSON(GetDataObject("Conditions"));
         }
         public override void Clear()
         {
             base.Clear();
+            Conditions.Clear();
         }
         public override void BindToScene(VAGHandler Handler)
         {
             base.BindToScene(Handler);
+            Conditions.BindToScene(Handler);
+        }
+
+        public bool Evaluate()
+        {
+            bool val = true;
+
+            switch (ConditionType)
+            {
+                case ">":
+                    {
+                        val = (Int32.Parse(Store.Handler.GetVariableValue(LeftValue)) > Int32.Parse(Store.Handler.GetVariableValue(RightValue)));
+                        break;
+                    }
+
+                case "<":
+                    {
+                        val = (Int32.Parse(Store.Handler.GetVariableValue(LeftValue)) < Int32.Parse(Store.Handler.GetVariableValue(RightValue)));
+                        break;
+                    }
+
+                case "<>":
+                    {
+                        val = (!Store.Handler.GetVariableValue(LeftValue).Equals(Store.Handler.GetVariableValue(RightValue)));
+                        break;
+                    }
+
+                case "=":
+                    {
+                        val = Store.Handler.GetVariableValue(LeftValue).Equals(Store.Handler.GetVariableValue(RightValue));
+                        break;
+                    }
+            }
+
+            switch (ChainType)
+            {
+                case "and":
+                    {
+                        val = val && Conditions.Evaluate();
+                        break;
+                    }
+
+                case "or":
+                    {
+                        val = val || Conditions.Evaluate();
+                        break;
+                    }
+
+                case "andnot":
+                    {
+                        val = val && !Conditions.Evaluate();
+                        break;
+                    }
+
+                case "ornot":
+                    {
+                        val = val || !Conditions.Evaluate();
+                        break;
+                    }                                      
+            }
+
+            return val;
         }
     }
 
@@ -61,32 +126,40 @@ namespace ezuvam.VAG
             {
                 VAGCondition Condition = ByIndex(i);
 
-                switch (Condition.ConditionType)
+                if (i == 0)
                 {
-                    case ">":
-                        {
-                            val = val && (Int32.Parse(Store.Handler.GetVariableValue(Condition.LeftValue)) > Int32.Parse(Store.Handler.GetVariableValue(Condition.RightValue)));
-                            break;
-                        }
-
-                    case "<":
-                        {
-                            val = val && (Int32.Parse(Store.Handler.GetVariableValue(Condition.LeftValue)) < Int32.Parse(Store.Handler.GetVariableValue(Condition.RightValue)));
-                            break;
-                        }
-
-                    case "<>":
-                        {
-                            val = val && (!Store.Handler.GetVariableValue(Condition.LeftValue).Equals(Store.Handler.GetVariableValue(Condition.RightValue)));
-                            break;
-                        }
-
-                    case "=":
-                        {
-                            val = val && Store.Handler.GetVariableValue(Condition.LeftValue).Equals(Store.Handler.GetVariableValue(Condition.RightValue));
-                            break;
-                        }
+                    val = Condition.Evaluate();
                 }
+                else
+                {
+                    switch (Condition.ChainType)
+                    {
+                        case "and":
+                            {
+                                val = val && Condition.Evaluate();
+                                break;
+                            }
+
+                        case "or":
+                            {
+                                val = val || Condition.Evaluate();
+                                break;
+                            }
+
+                        case "andnot":
+                            {
+                                val = val && !Condition.Evaluate();
+                                break;
+                            }
+
+                        case "ornot":
+                            {
+                                val = val || !Condition.Evaluate();
+                                break;
+                            }
+                    }
+                }
+
             }
 
             return val;
