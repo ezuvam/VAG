@@ -119,9 +119,9 @@ namespace ezuvam.VAG
         {
             return childs[index] as VAGTransition;
         }
-        public new VAGTransition ByName(string Name)
+        public VAGTransition ByName(string Name)
         {
-            return base.ByName(Name) as VAGTransition;
+            return (VAGTransition)base.ByName(Name, typeof(VAGTransition));
         }
 
     }

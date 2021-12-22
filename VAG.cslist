@@ -12,6 +12,7 @@ src/VAGDialog.cs
 src/VAGLocations.cs
 src/VAGWardrobe.cs
 src/VAGMood.cs
+src/VAGChapters.cs
 src/VAGQuests.cs
 src/VAGHandler.cs
 src/VAGUI.cs

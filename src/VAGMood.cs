@@ -40,6 +40,12 @@ namespace ezuvam.VAG
             StartActions.BindToScene(Handler);
             EndActions.BindToScene(Handler);
         }
+        public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            base.AddToDict(Dict, AttrName);            
+            StartActions.AddToDict(Dict, AttrName);
+            EndActions.AddToDict(Dict, AttrName);
+        }        
         public void ApplyToPerson(Atom personAtom)
         {
             CallPluginMethod(personAtom, string.IsNullOrEmpty(Plugin) ? _collection.Plugin : Plugin,
@@ -68,9 +74,9 @@ namespace ezuvam.VAG
         {
             return childs[index] as VAGMood;
         }
-        public new VAGMood ByName(string Name)
+        public VAGMood ByName(string Name)
         {
-            return base.ByName(Name) as VAGMood;
+            return (VAGMood)base.ByName(Name, typeof(VAGMood));
         }
     }
 }

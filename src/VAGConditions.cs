@@ -14,9 +14,9 @@ namespace ezuvam.VAG
         public string RightValue { get { return GetDataStr("RightValue"); } set { SetDataStr("RightValue", value); } }
         public string ChainType { get { return GetDataStr("ChainType"); } set { SetDataStr("ChainType", value); } }
 
-        public VAGConditionCollection Conditions;       
+        public VAGConditionCollection Conditions;
         public VAGCondition(JSONClass initialData, VAGStore ownerStore, VAGConditionCollection collection) : base(initialData, ownerStore)
-        {            
+        {
             Conditions = new VAGConditionCollection(GetDataObject("Conditions"), ownerStore);
         }
         public override void LoadFromJSON(JSONClass jsonData)
@@ -34,6 +34,11 @@ namespace ezuvam.VAG
             base.BindToScene(Handler);
             Conditions.BindToScene(Handler);
         }
+        public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            base.AddToDict(Dict, AttrName);
+            Conditions.AddToDict(Dict, AttrName);
+        }
 
         public bool Evaluate()
         {
@@ -43,13 +48,13 @@ namespace ezuvam.VAG
             {
                 case ">":
                     {
-                        val = (Int32.Parse(Store.Handler.GetVariableValue(LeftValue)) > Int32.Parse(Store.Handler.GetVariableValue(RightValue)));
+                        val = (Store.Handler.GetVariableValueInt(LeftValue) > Store.Handler.GetVariableValueInt(RightValue));
                         break;
                     }
 
                 case "<":
                     {
-                        val = (Int32.Parse(Store.Handler.GetVariableValue(LeftValue)) < Int32.Parse(Store.Handler.GetVariableValue(RightValue)));
+                        val = (Store.Handler.GetVariableValueInt(LeftValue) < Store.Handler.GetVariableValueInt(RightValue));
                         break;
                     }
 
@@ -90,7 +95,7 @@ namespace ezuvam.VAG
                     {
                         val = val || !Conditions.Evaluate();
                         break;
-                    }                                      
+                    }
             }
 
             return val;
@@ -113,9 +118,9 @@ namespace ezuvam.VAG
         {
             return childs[index] as VAGCondition;
         }
-        public new VAGCondition ByName(string Name)
+        public VAGCondition ByName(string Name)
         {
-            return base.ByName(Name) as VAGCondition;
+            return (VAGCondition)base.ByName(Name, typeof(VAGCondition));
         }
 
         public bool Evaluate()

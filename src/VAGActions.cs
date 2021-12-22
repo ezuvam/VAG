@@ -354,6 +354,10 @@ namespace ezuvam.VAG
                 Execute(Handler);
                 Handler.StopPlayObject(this);
             }
+            else
+            {
+                Handler.StopPlayObject(this);
+            }
         }
 
     }

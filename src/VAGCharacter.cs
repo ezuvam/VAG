@@ -169,9 +169,9 @@ namespace ezuvam.VAG
         {
             return childs[index] as VAGCharacter;
         }
-        public new VAGCharacter ByName(string Name)
+        public VAGCharacter ByName(string Name)
         {
-            VAGCharacter Character = base.ByName(Name) as VAGCharacter;
+            VAGCharacter Character = (VAGCharacter)base.ByName(Name, typeof(VAGCharacter));
 
             if (!Assigned(Character) & (childs.Count > 0))
             {

@@ -29,6 +29,12 @@ namespace ezuvam.VAG
             EndActions.Clear();
             base.Clear();
         }
+        public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            base.AddToDict(Dict, AttrName);
+            StartActions.AddToDict(Dict, AttrName);
+            EndActions.AddToDict(Dict, AttrName);
+        }
         public override void BindToScene(VAGHandler Handler)
         {
             base.BindToScene(Handler);
@@ -62,9 +68,9 @@ namespace ezuvam.VAG
         {
             return childs[index] as VAGWardrobe;
         }
-        public new VAGWardrobe ByName(string Name)
+        public VAGWardrobe ByName(string Name)
         {
-            return base.ByName(Name) as VAGWardrobe;
+            return (VAGWardrobe)base.ByName(Name, typeof(VAGWardrobe));
         }
     }
 }

@@ -6,7 +6,6 @@ using SimpleJSON;
 
 namespace ezuvam.VAG
 {
-
     public class VAGItem : VAGCustomGameObject
     {
         public string Name { get { return GetDataStr("Name"); } set { SetDataStr("Name", value); } }
@@ -46,11 +45,7 @@ namespace ezuvam.VAG
             DropActions.Clear();
             base.Clear();
         }
-        public override void Start(VAGHandler handler)
-        {
-            base.Start(handler);
-            ShowAtomUI();
-        }
+
         public override void BindToScene(VAGHandler Handler)
         {
             base.BindToScene(Handler);
@@ -66,7 +61,18 @@ namespace ezuvam.VAG
                 atom.mainController.onGrabEndHandlers += DoOnAtomGrabEnd;
             }
         }
-
+        public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            base.AddToDict(Dict, AttrName);
+            Choices.AddToDict(Dict, AttrName);
+            GrabActions.AddToDict(Dict, AttrName);
+            DropActions.AddToDict(Dict, AttrName);
+        }
+        public override void Start(VAGHandler handler)
+        {
+            base.Start(handler);
+            ShowAtomUI();
+        }
         public void ShowAtomUI()
         {
             Atom atom = SuperController.singleton.GetAtomByUid(AtomName);
@@ -133,9 +139,9 @@ namespace ezuvam.VAG
         {
             return childs[index] as VAGItem;
         }
-        public new VAGItem ByName(string Name)
+        public VAGItem ByName(string Name)
         {
-            return base.ByName(Name) as VAGItem;
+            return (VAGItem)base.ByName(Name, typeof(VAGItem));
         }
     }
 }

@@ -60,6 +60,7 @@ namespace ezuvam.VAG
         }
         public JSONClass _data;
         public event VAGObjEvent OnChanged;
+        protected Dictionary<string, VAGCustomStorable> NameDict;
 
         public bool Assigned(object o) { return !System.Object.ReferenceEquals(o, null); }
         public VAGCustomStorable(JSONClass initialData)
@@ -67,6 +68,10 @@ namespace ezuvam.VAG
             if (Assigned(initialData)) { _data = initialData; } else { _data = new JSONClass(); }
         }
 
+        public bool HasKey(string key)
+        {
+            return _data.AsObject.HasKey(key);
+        }
         public void SetDataStr(string key, string value)
         {
             _data[key] = value;
@@ -180,29 +185,6 @@ namespace ezuvam.VAG
             }
         }
 
-        public virtual void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
-        {
-            if (Assigned(_data))
-            {
-                if (_data.HasKey(AttrName))
-                {
-                    string key = GetDataStr(AttrName);
-
-                    if (!string.IsNullOrEmpty(key))
-                    {
-                        if (!Dict.ContainsKey(key))
-                        {
-                            Dict.Add(key, this);
-                        }
-                        else
-                        {
-                            SuperController.LogError($"VAGItem with attribut {AttrName} value {key} already exists");
-                        }
-                    }
-                }
-            }
-        }
-
         public virtual void Clear()
         {
             if (Assigned(_data))
@@ -253,6 +235,67 @@ namespace ezuvam.VAG
 
         }
 
+        public virtual void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            if (Assigned(_data))
+            {
+                if (_data.HasKey(AttrName))
+                {
+                    string key = GetDataStr(AttrName);
+
+                    if (!string.IsNullOrEmpty(key))
+                    {
+                        if (!Dict.ContainsKey(key))
+                        {
+                            Dict.Add(key, this);
+                        }
+                        else
+                        {
+                            SuperController.LogError($"VAGItem with attribut {AttrName} value {key} already exists");
+                        }
+                    }
+                }
+            }
+        }
+
+        protected void InvalidateNameDict()
+        {
+            if (!Assigned(NameDict))
+            {
+                NameDict = new Dictionary<string, VAGCustomStorable>();
+                AddToDict(NameDict, "Name");
+            }
+        }
+
+        public VAGCustomStorable ByName(string Name, Type AClass)
+        {
+            InvalidateNameDict();
+
+            VAGCustomStorable item;
+            if (NameDict.TryGetValue(Name, out item))
+            {
+                if ((AClass == null) || (item.GetType() == AClass))
+                {
+                    return item;
+                }
+                else { return null; }
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
+        public virtual void SetGameVariable(string VarName, string VarValue)
+        {
+
+        }
+
+        public virtual string GetGameVariable(string VarName)
+        {
+            return "";
+        }
     }
 
     public class VAGCustomGameObject : VAGCustomStorable
@@ -320,6 +363,30 @@ namespace ezuvam.VAG
             }
 
         }
+        public string GetGameStateKeyName(string VarName)
+        {
+            return GetDataStr("UID") + "." + VarName;
+        }
+        public override void SetGameVariable(string VarName, string VarValue)
+        {
+            base.SetGameVariable(VarName, VarValue);
+            Store.GameStates.SetDataStr(GetGameStateKeyName(VarName), VarValue);
+        }
+
+        public override string GetGameVariable(string VarName)
+        {
+            //base.SetGameVariable(VarName, VarValue);            
+            string statename = GetGameStateKeyName(VarName);
+
+            if (Store.GameStates.HasKey(statename))
+            {
+                return Store.GameStates.GetDataStr(statename);
+            }
+            else
+            {
+                return GetDataStr(VarName);
+            }
+        }
 
     }
 
@@ -327,7 +394,6 @@ namespace ezuvam.VAG
     {
         private readonly string _storename;
         protected List<VAGCustomGameObject> childs = new List<VAGCustomGameObject>();
-        protected Dictionary<string, VAGCustomStorable> NameDict;
 
         public VAGCustomStorableCollection(JSONClass initialData, string storename, VAGStore ownerStore) : base(initialData, ownerStore)
         {
@@ -348,32 +414,6 @@ namespace ezuvam.VAG
             {
                 childs[i].AddToDict(Dict, AttrName);
             }
-        }
-
-        protected void InvalidateNameDict()
-        {
-            if (!Assigned(NameDict))
-            {
-                NameDict = new Dictionary<string, VAGCustomStorable>();
-                AddToDict(NameDict, "Name");
-            }
-        }
-
-
-        public VAGCustomStorable ByName(string Name)
-        {
-            InvalidateNameDict();
-
-            VAGCustomStorable item;
-            if (NameDict.TryGetValue(Name, out item))
-            {
-                return item;
-            }
-            else
-            {
-                return null;
-            }
-
         }
 
         public VAGCustomStorable ByAttrValue(string attrName, string attrValue)

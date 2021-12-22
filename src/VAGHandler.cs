@@ -82,6 +82,16 @@ namespace ezuvam.VAG
             Locations.BindToScene(Handler);
             Transitions.BindToScene(Handler);
         }
+        public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            base.AddToDict(Dict, AttrName);
+            Quests.AddToDict(Dict, AttrName);
+            Characters.AddToDict(Dict, AttrName);
+            Dialogs.AddToDict(Dict, AttrName);
+            Items.AddToDict(Dict, AttrName);
+            Locations.AddToDict(Dict, AttrName);
+            Transitions.AddToDict(Dict, AttrName);
+        }
     }
 
     public class VAGGameStates : VAGCustomStorable
@@ -501,15 +511,59 @@ namespace ezuvam.VAG
                 SuperController.LogError($"Character with name {personName} not found!");
             }
         }
-
+        public static int StrToIntDef(string s, int @default = 0)
+        {
+            int number;
+            if (int.TryParse(s, out number))
+                return number;
+            return @default;
+        }
         public void UpdateVariable(string VarName, string VarValue)
         {
-           // TODO
+            string[] varparts = VarName.Split('.');
+
+            if (varparts.Length > 1)
+            {
+                VAGCustomStorable item = Store.ByName(varparts[0], null);
+                if (Assigned(item))
+                {
+                    item.SetGameVariable(varparts[1], VarValue);
+                }
+                else
+                {
+                    Store.GameStates.SetDataStr(VarName, VarValue);
+                }
+            }
+            else
+            {
+                Store.GameStates.SetDataStr(VarName, VarValue);
+            }
         }
 
         public string GetVariableValue(string VarName)
         {
-            return VarName; // TODO
+            string[] varparts = VarName.Split('.');
+
+            if (varparts.Length > 1)
+            {
+                VAGCustomStorable item = Store.ByName(varparts[0], null);
+                if (Assigned(item))
+                {
+                    return item.GetGameVariable(varparts[1]);
+                }
+                else
+                {
+                    return Store.GameStates.GetDataStr(VarName);
+                }
+            }
+            else
+            {
+                return Store.GameStates.GetDataStr(VarName);
+            }
+        }
+        public int GetVariableValueInt(string VarName)
+        {
+            return StrToIntDef(GetVariableValue(VarName), 0);
         }
         public void Update()
         {

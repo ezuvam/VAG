@@ -158,9 +158,9 @@ namespace ezuvam.VAG
         {
             return childs[index] as VAGAtomSetting;
         }
-        public new VAGAtomSetting ByName(string Name)
+        public VAGAtomSetting ByName(string Name)
         {
-            return base.ByName(Name) as VAGAtomSetting;
+            return (VAGAtomSetting)base.ByName(Name, typeof(VAGAtomSetting));
         }
         public void ApplyToAtoms(VAGHandler Handler)
         {

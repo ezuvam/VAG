@@ -94,6 +94,7 @@
     <Compile Include="src/VAGLocations.cs" />   
     <Compile Include="src/VAGWardrobe.cs" />  
     <Compile Include="src/VAGMood.cs" />  
+    <Compile Include="src/VAGChapters.cs" />
     <Compile Include="src/VAGQuests.cs" />
     <Compile Include="src/VAGHandler.cs" />
     <Compile Include="src/VAGPlugin.cs" />

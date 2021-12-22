@@ -89,9 +89,9 @@ namespace ezuvam.VAG
         {
             return childs[index] as VAGPlace;
         }
-        public new VAGPlace ByName(string Name)
+        public VAGPlace ByName(string Name)
         {
-            return base.ByName(Name) as VAGPlace;
+            return (VAGPlace)base.ByName(Name, typeof(VAGPlace));
         }
 
     }
@@ -137,6 +137,13 @@ namespace ezuvam.VAG
             AfterLoadActions.BindToScene(Handler);
             Places.BindToScene(Handler);
         }
+        public override void AddToDict(Dictionary<string, VAGCustomStorable> Dict, string AttrName)
+        {
+            base.AddToDict(Dict, AttrName);            
+            BeforeLoadActions.AddToDict(Dict, AttrName);
+            AfterLoadActions.AddToDict(Dict, AttrName);
+            Places.AddToDict(Dict, AttrName);
+        }          
         public void AfterLoad(VAGHandler Handler)
         {
             Handler.PlayObject(AfterLoadActions);
@@ -161,9 +168,9 @@ namespace ezuvam.VAG
             return childs[index] as VAGLocation;
         }
 
-        public new VAGLocation ByName(string Name)
+        public VAGLocation ByName(string Name)
         {
-            return base.ByName(Name) as VAGLocation;
+            return (VAGLocation)base.ByName(Name, typeof(VAGLocation));
         }
 
         public VAGPlace PlaceByName(string Name)

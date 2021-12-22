@@ -107,9 +107,9 @@ namespace ezuvam.VAG
             return childs[index] as VAGDialog;
         }
 
-        public new VAGDialog ByName(string Name)
+        public VAGDialog ByName(string Name)
         {
-            return base.ByName(Name) as VAGDialog;
+            return (VAGDialog)base.ByName(Name, typeof(VAGDialog));
         }
 
         public override void Start(VAGHandler Handler)
