@@ -108,7 +108,10 @@ namespace ezuvam.VAG
                     wardrobe.ApplyToPerson(PersonAtom);                    
                     Handler.PlayObject(wardrobe.StartActions);
 
-                    GameStates["wardrobe"] = wardrobeName;
+                    if (!isRestore)
+                    {
+                        GameStates["wardrobe"] = wardrobeName;
+                    }
                 }
                 else
                 {
@@ -134,7 +137,10 @@ namespace ezuvam.VAG
                     mood.ApplyToPerson(PersonAtom);
                     Handler.PlayObject(mood.StartActions);
 
-                    GameStates["mood"] = moodName;
+                    if (!isRestore)
+                    {
+                        GameStates["mood"] = moodName;
+                    }
                 }
                 else
                 {

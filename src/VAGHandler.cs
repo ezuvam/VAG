@@ -574,35 +574,37 @@ namespace ezuvam.VAG
 
                 if (_updateTimerVal > _updateTimerInterval)
                 {
-                    VAGObject questObject;
+                    Store.Quests.UpdateQuests(this);
+
+                    VAGObject playingObject;
 
                     //SuperController.LogMessage("_playingObjects count: " + _playingObjects.Count.ToString());
 
                     for (int i = _playingObjects.Count - 1; i >= 0; i--)
                     {
-                        questObject = _playingObjects[i];
+                        playingObject = _playingObjects[i];
 
-                        if (questObject.States.Running)
+                        if (playingObject.States.Running)
                         {
-                            questObject.States.TimeToRun -= _updateTimerVal;
+                            playingObject.States.TimeToRun -= _updateTimerVal;
 
-                            if (questObject.States.TimeToRun <= 0)
+                            if (playingObject.States.TimeToRun <= 0)
                             {
-                                questObject.Finish(this);
+                                playingObject.Finish(this);
 
-                                if (!questObject.States.Running)
+                                if (!playingObject.States.Running)
                                 {
-                                    _playingObjects.Remove(questObject);
+                                    _playingObjects.Remove(playingObject);
                                 }
                             }
                         }
                         else
                         {
-                            questObject.States.StartDelay -= _updateTimerVal;
+                            playingObject.States.StartDelay -= _updateTimerVal;
 
-                            if (questObject.States.StartDelay <= 0)
+                            if (playingObject.States.StartDelay <= 0)
                             {
-                                questObject.Start(this);
+                                playingObject.Start(this);
                             }
                         }
 
